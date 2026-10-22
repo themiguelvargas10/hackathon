@@ -4,7 +4,7 @@ Prototipo de SIEM de agua. Solo eventos sintéticos. No se conecta a medidores r
 
 ## Ejecutar en Windows de esta laptop
 
-Abre `INICIAR_WINDOWS.cmd`. Al iniciar, la terminal muestra un token temporal para acciones del operador. Mantén esa terminal abierta. Abre http://127.0.0.1:8765.
+Abre `INICIAR_WINDOWS.cmd`. Al iniciar, la terminal muestra un token temporal para acciones del operador. Mantén esa terminal abierta. Abre http://127.0.0.1:8765 para ver la portada AquaHotel; elige **Explorar la consola** para abrir el triage en http://127.0.0.1:8765/console.
 
 El token se pide al registrar una revisión o simular evento y se conserva solo en la sesión de esa pestaña. La API solo escucha en localhost. Las acciones se guardan en SQLite en `demo.sqlite3`, con usuario local `operador_local`, evento, nota y hora. No uses el servidor de demostración con sensores reales.
 

@@ -71,7 +71,10 @@ def operator(x_demo_token):
         raise HTTPException(401,'Acción protegida: ingresa el token de operador mostrado al iniciar la demo.')
 
 @app.get('/')
-def home(): return FileResponse(ROOT/'index.html')
+def home(): return FileResponse(ROOT/'landing.html')
+
+@app.get('/console')
+def console(): return FileResponse(ROOT/'index.html')
 
 @app.get('/api/dashboard')
 def dashboard():
