@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AquaGuard · Agua con evidencia</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="AquaGuard inicio"><img src="/favicon.svg" alt="" width="37" height="37"><span>Aqua<span class="brand-light">Guard</span></span></a>
+  <div class="side-sub">AGUA · ENERGÍA · EVIDENCIA</div>
+  <nav aria-label="Secciones"><button class="nav active" data-tab="overview" aria-current="page"><span>01</span> Monitor de operaciones</button><button class="nav" data-tab="evaluation"><span>02</span> Evaluación del detector</button><button class="nav" data-tab="method"><span>03</span> Datos y método</button></nav>
+  <div class="side-note"><span class="dot"></span> Demostración local<p>AguaSegura AI<br>22 octubre 2026</p><p class="muted">Tres sitios ficticios.<br>Una revisión informada.</p></div>
+</aside>
+<main id="main">
+  <header><span class="eyebrow">CENTRO DE REVISIÓN / AQUAGUARD</span><span class="sim-tag">DATOS SIMULADOS</span></header>
+  <div class="heading"><div><h1 id="page-title">Cada gota, con evidencia.</h1><p id="page-subtitle">Identifica intervalos sospechosos y decide qué revisar.</p></div><button id="demo" class="button secondary">Recorrer un caso →</button></div>
+  <section class="filterbar" aria-label="Filtros del análisis">
+    <label>Sitio<select id="site"><option value="all">Todos los sitios</option><option value="SIM-A">SIM-A · Aire</option><option value="SIM-B">SIM-B · Evaporativa</option><option value="SIM-C">SIM-C · Líquida</option></select></label>
+    <label>Desde · UTC<input id="start" type="date" value="2026-10-12"></label>
+    <label>Hasta · UTC<input id="end" type="date" value="2026-10-18"></label>
+    <label>Periodo<select id="split"><option value="all">Semana completa</option><option value="referencia">Referencia</option><option value="evaluacion">Evaluación</option></select></label>
+    <label>Detector numérico<select id="method"><option value="rules">Reglas explicables</option><option value="forest">Isolation Forest</option></select></label>
+    <button id="reset" class="button secondary">Restablecer</button>
+  </section>
+  <div id="status" role="status" aria-live="polite">Cargando datos locales…</div>
+  <div id="content" hidden>
+    <section id="overview" class="view">
+      <div class="kpis" id="kpis"></div>
+      <div class="section-top"><h2>Los sitios, de un vistazo</h2><span class="muted">Mismo periodo · escenarios distintos</span></div>
+      <div id="sites" class="site-grid"></div>
+      <section class="panel chart-panel"><div class="section-top"><div><h2>El comportamiento en el tiempo</h2><p class="muted" id="chart-caption">Totales por intervalo horario en UTC.</p></div><label class="compact">Mostrar<select id="chart-metric"><option value="water_l">Agua captada · L</option><option value="energy_total_kwh">Energía total · kWh</option><option value="pue">PUE agregado</option></select></label></div><div id="chart" aria-label="Serie temporal"></div><div class="legend"><span class="line-key"></span> Valor del intervalo <span class="alert-key"></span> Una o más alertas <span class="muted">Tabla accesible disponible abajo</span></div><details><summary>Ver datos de la gráfica</summary><div class="table-scroll"><table><thead><tr><th>Inicio UTC</th><th>Agua (L)</th><th>Energía total (kWh)</th><th>PUE</th><th>Alertas</th></tr></thead><tbody id="timeline-table"></tbody></table></div></details></section>
+      <div class="section-top"><div><h2>Intervalos para revisar <span id="alert-count" class="count"></span></h2><p class="muted">Orden cronológico. Una alerta no confirma una fuga ni un ataque.</p></div><a id="export-csv" class="button secondary" href="/api/alerts.csv">Descargar alertas ↓</a></div>
+      <div class="review-grid"><section class="panel alert-panel"><div id="alerts"></div><div class="pager"><button id="prev" class="button secondary">← Anterior</button><span id="page-info"></span><button id="next" class="button secondary">Siguiente →</button></div></section><section class="panel evidence" id="evidence" aria-live="polite"></section></div>
+    </section>
+    <section id="evaluation" class="view" hidden>
+      <div class="notice"><b>Evaluación separada del ajuste.</b> Ambos detectores usan PUE, intensidad hídrica y temperatura de entrada. Se evalúan anomalías numéricas; los eventos OT se cuentan aparte. Cambiar de detector no cambia el conjunto de comparación.</div>
+      <div id="eval-summary" class="summary-strip"></div>
+      <section class="panel"><h2>Calidad de detección</h2><p class="muted">Solo filas de evaluación que coinciden con los filtros. Sin ajuste sobre estas etiquetas.</p><div class="table-scroll"><table><thead><tr><th>Método</th><th>Aciertos TP</th><th>Falsas alarmas FP</th><th>Omitidas FN</th><th>Negativos TN</th><th>Precisión</th><th>Recall</th><th>F1</th></tr></thead><tbody id="scores"></tbody></table></div><p class="footnote">Precisión: qué fracción de las alertas es correcta. Recall: qué fracción de las anomalías se detecta. “—” indica que no puede calcularse. El conjunto fue diseñado para activar las reglas; no acredita eficacia real.</p></section>
+      <section class="panel"><h2>Aprender de los errores</h2><p id="errors-caption" class="muted"></p><div class="table-scroll"><table><thead><tr><th>Sitio</th><th>Inicio UTC</th><th>Resultado</th><th>Etiqueta sintética</th></tr></thead><tbody id="errors"></tbody></table></div></section>
+      <section class="panel"><div class="section-top"><div><h2>Coste de inferencia en este equipo</h2><p class="muted">Tres repeticiones después de calentamiento. Siempre usa toda la evaluación, sin filtros.</p></div><button id="benchmark" class="button primary">Medir ahora</button></div><div id="benchmark-result" aria-live="polite"><p>La medición se ejecuta cuando la solicitas. Compara tiempo y calidad; no convierte segundos en ahorro de agua o energía.</p></div></section>
+      <a id="export-json" class="button secondary" href="/api/export.json">Descargar informe reproducible ↓</a>
+    </section>
+    <section id="method" class="view" hidden>
+      <div class="method-grid"><section class="panel"><span class="eyebrow">01 / ORIGEN</span><h2>Un laboratorio de 504 intervalos</h2><p>Datos sintéticos del kit CIFOX: 168 horas por sitio, del 12 al 18 de octubre de 2026. Semilla 22102026. SIM-A usa aire, SIM-B evaporativa y SIM-C líquida.</p><p>216 registros de referencia para ajustar el modelo; 288 posteriores para evaluar. Hay 16 anomalías numéricas y 5 eventos OT inyectados en evaluación.</p><p>La validación rechaza duplicados, valores no finitos, dominios inválidos y datos que no se declaren simulados. Los huecos internos se informan sin rellenarlos.</p><div id="quality" class="notice"></div></section>
+      <section class="panel"><span class="eyebrow">02 / MEDICIÓN</span><h2>Sumar antes de dividir</h2><div class="formula">PUE = Σ energía total / Σ energía IT</div><div class="formula">Intensidad hídrica = Σ litros / Σ energía IT</div><p>Los filtros se aplican a numerador y denominador. La intensidad está en L/kWh IT. Sin filas, el cociente es indefinido.</p><p>El agua representa captación local simulada. Excluye generación eléctrica, fabricación y retornos. No evalúa potabilidad ni litros por consulta de IA.</p></section>
+      <section class="panel"><span class="eyebrow">03 / DETECCIÓN</span><h2>Dos métodos, las mismas señales</h2><p>Reglas: PUE &gt; 1.6, intensidad hídrica &gt; 1.5 o temperatura de entrada &gt; 29 °C. Son umbrales didácticos.</p><p>Isolation Forest educativo: 64 árboles por sitio, submuestras de hasta 64 filas y profundidad máxima 6. Umbral fijo en el percentil 95 de las puntuaciones de referencia.</p><p>La puntuación mide aislamiento; no es probabilidad. Las etiquetas, eventos OT, fechas y escenarios no entran al modelo. La mediana de referencia mostrada es contexto descriptivo, no una explicación causal del modelo.</p></section>
+      <section class="panel"><span class="eyebrow">04 / ALCANCE</span><h2>De la señal a la revisión</h2><p>Las alertas ayudan a revisar. No ejecutan cambios ni controlan refrigeración. Los eventos OT se presentan aparte y no confirman ataques.</p><p>Los sitios tienen condiciones distintas. Compararlos no demuestra que una refrigeración sea mejor. El rendimiento sobre datos sintéticos no demuestra ahorro ni eficacia en instalaciones reales.</p><p><b>Aportación AquaGuard:</b> fichas de evidencia, comparación con iguales entradas, modelo por sitio, exportaciones, medición separada de inferencia y pruebas automatizadas.</p></section></div>
+    </section>
+    <footer><span>AquaGuard · Hecho para revisar con criterio.</span><span>Base de datos CIFOX · CPU · Sin servicios externos</span></footer>
+  </div>
+</main></body></html>
