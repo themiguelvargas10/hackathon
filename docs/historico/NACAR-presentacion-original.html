@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}html,body{margin:0}</style>
+<title>NÁCAR SIEM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap">
+<style>
+/* Layout: una diapositiva a pantalla completa, cabecera con capítulos, pie con barra de tiempo (3:00). Estilo de la landing NÁCAR SIEM. */
+:root{
+  --bg:#f9f8f6; --surface:#ffffff; --ink:#15151c; --muted:#5a5d6b; --line:#e4e2dd;
+  --em:#141a5c; --navy-bg:#141a5c; --blue:#2b3dff; --blue-text:#2b3dff; --tint:#eceefe; --lav:#f1e4f6;
+  --good:#17875c; --warn:#b97300; --crit:#d23c3c; --crit-tint:rgba(210,60,60,.12);
+  --shadow:0 1px 2px rgba(20,26,92,.06),0 22px 44px -14px rgba(20,26,92,.22);
+  --serif:'Newsreader','Source Serif 4',Georgia,'Times New Roman',serif;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d0f1f; --surface:#161a32; --ink:#f2f1ed; --muted:#a4a7bb; --line:#2a2e4d;
+  --em:#b3bdff; --navy-bg:#222a86; --blue:#4a5bff; --blue-text:#93a0ff; --tint:#222866; --lav:#4a2f6e;
+  --good:#3fc58d; --warn:#e3a43a; --crit:#ff7070; --crit-tint:rgba(255,112,112,.16);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 22px 44px -14px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d0f1f; --surface:#161a32; --ink:#f2f1ed; --muted:#a4a7bb; --line:#2a2e4d;
+  --em:#b3bdff; --navy-bg:#222a86; --blue:#4a5bff; --blue-text:#93a0ff; --tint:#222866; --lav:#4a2f6e;
+  --good:#3fc58d; --warn:#e3a43a; --crit:#ff7070; --crit-tint:rgba(255,112,112,.16);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 22px 44px -14px rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--blue-text);outline-offset:3px;border-radius:6px}
+
+.app{height:100%;max-width:1320px;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+
+/* Cabecera */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:16px}
+.brand{background:none;border:0;padding:0;cursor:pointer;font-weight:800;font-size:1.3rem;letter-spacing:-.03em;color:var(--em);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+.brand b{color:var(--blue-text);font-weight:800}
+.nav{display:flex;gap:clamp(12px,2.4vw,34px)}
+.nav button{background:none;border:0;border-bottom:2px solid transparent;padding:6px 2px;cursor:pointer;font-size:.95rem;font-weight:500;color:var(--ink)}
+.nav button[aria-current="true"]{border-bottom-color:var(--blue-text);color:var(--blue-text)}
+.right{display:flex;align-items:center;gap:16px}
+.clock{font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.clock.warn{color:var(--warn);font-weight:600}
+.clock.over{color:var(--crit);font-weight:700}
+.pill{background:var(--blue);color:#fff;border:0;border-radius:999px;padding:12px 24px;font-size:.95rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:transform .15s,filter .15s}
+.pill:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.pill.ghost{background:var(--tint);color:var(--blue-text)}
+
+/* Diapositivas */
+.slides{position:relative;min-height:0}
+.slide{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s .45s}
+.slide.on{opacity:1;visibility:visible;transition-delay:0s}
+.wrap{min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:clamp(18px,3.4vh,40px);padding-block:clamp(6px,2vh,24px)}
+
+.r{}
+.slide.on .r{animation:rise .8s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i,0) * 90ms + 100ms)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+@keyframes fade{from{opacity:0}}
+@keyframes draw{from{stroke-dashoffset:1}}
+
+.eyebrow{font-size:.72rem;font-weight:600;line-height:1.5;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);max-width:62ch;margin:0}
+h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.022em;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.3rem,min(5.4vw,9vh),5.2rem);line-height:1.03}
+h2{font-size:clamp(2rem,min(4.2vw,7.4vh),3.8rem);line-height:1.07}
+h1 em,h2 em{color:var(--em);font-style:italic}
+.lead{font-size:clamp(1rem,min(1.55vw,2.7vh),1.3rem);color:var(--muted);max-width:54ch;margin:0}
+.stack{display:flex;flex-direction:column;gap:clamp(12px,2.2vh,24px)}
+.split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(24px,5vw,72px);align-items:center}
+.split.even{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.split.wide{grid-template-columns:minmax(0,7fr) minmax(0,5fr);align-items:start}
+.row-cta{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.tag{font-size:.9rem;color:var(--muted)}
+
+.chip{display:inline-block;padding:6px 13px;border-radius:999px;background:var(--tint);color:var(--blue-text);font-size:.8rem;font-weight:600;white-space:nowrap}
+.chip.crit{background:var(--crit-tint);color:var(--crit)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.card{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:clamp(16px,2.2vw,26px)}
+
+/* Maqueta de la plataforma (portada) */
+.mock{position:relative;margin:8px 0 38px;padding-right:8px}
+.mock-back{position:absolute;inset:42px -18px -12px 46px;background:var(--navy-bg);border-radius:30px;transform:rotate(2.2deg)}
+.report{position:relative;transform:rotate(-1.1deg);padding:clamp(14px,2vw,24px)}
+.rep-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.rep-h h3{font-family:var(--serif);font-weight:500;font-size:clamp(1.15rem,2vw,1.6rem);letter-spacing:-.01em;margin:0;color:var(--em)}
+.live{font-size:.68rem;font-weight:600;letter-spacing:.06em;color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent);padding:5px 11px;border-radius:999px;white-space:nowrap}
+.sub{font-size:.75rem;color:var(--muted);margin:2px 0 10px}
+.tabs{display:flex;gap:8px;margin-bottom:10px}
+.tabs span{font-size:.72rem;padding:5px 11px;border-radius:999px;background:color-mix(in srgb,var(--muted) 14%,transparent);color:var(--muted)}
+.tabs span.on{background:var(--tint);color:var(--blue-text);font-weight:600}
+.plot{border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px}
+.plot-h{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
+.plot-h b{color:var(--ink);font-size:.82rem}
+.plot svg{display:block;width:100%;height:auto}
+.plot-f{display:flex;justify-content:space-between;align-items:baseline;font-size:.72rem;color:var(--muted)}
+.plot-f b{font-size:1rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.meters{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;margin-top:12px;align-items:center}
+.meters ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.meters li{display:flex;align-items:center;gap:8px;font-size:.74rem;border-bottom:1px solid var(--line);padding-bottom:7px}
+.meters li span:last-child{margin-left:auto;font-weight:600}
+.gauge{width:96px;text-align:center;background:var(--tint);border-radius:16px;padding:8px 6px 6px;font-size:.62rem;color:var(--muted)}
+.gauge svg{width:70px;height:70px;display:block;margin:0 auto 2px}
+.chat{position:absolute;left:-7%;bottom:-34px;width:min(64%,330px);padding:14px 16px;border-radius:18px}
+.chat-top{display:flex;align-items:center;gap:10px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.8rem;flex:none}
+.chat-top b{font-size:.74rem;display:block}
+.chat-top small{font-size:.72rem;color:var(--muted);display:block}
+.send{margin-left:auto;background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;border-radius:999px;padding:7px 14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips span{font-size:.66rem;border:1px solid var(--line);border-radius:999px;padding:4px 9px;color:var(--muted)}
+
+.ln{fill:none;stroke:var(--blue-text);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+.slide.on .ln{animation:draw 1.9s .35s ease both}
+.slide.on .ar{animation:fade 1s 1.3s both}
+.grid{stroke:var(--line);stroke-width:1}
+.tick{fill:var(--muted);font:500 11px var(--sans)}
+.slide.on .pk{animation:fade .5s 2.1s both}
+@keyframes pulse{0%{r:5;opacity:.7}100%{r:16;opacity:0}}
+.pulse{fill:var(--crit);animation:pulse 1.8s ease-out infinite}
+.gring{fill:none;stroke:var(--blue-text);stroke-width:7;stroke-linecap:round;stroke-dasharray:213.6;stroke-dashoffset:38.4;transform:rotate(-90deg);transform-origin:50% 50%}
+.slide.on .gring{animation:gdraw 1.6s .6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes gdraw{from{stroke-dashoffset:213.6}}
+
+/* Lista tipo libro contable */
+.ledger{list-style:none;margin:0;padding:0}
+.ledger li{display:grid;grid-template-columns:clamp(150px,21vw,260px) minmax(0,1fr);align-items:center;gap:6px 24px;padding-block:clamp(10px,2vh,18px);border-top:1px solid var(--line)}
+.ledger li:last-child{border-bottom:1px solid var(--line)}
+.fig{font-family:var(--serif);font-size:clamp(1.9rem,min(3.8vw,6.8vh),3.3rem);line-height:1;color:var(--em);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fig small{font-family:var(--sans);font-size:.38em;font-weight:500;color:var(--muted);margin-left:.35em;letter-spacing:0}
+.cap{font-size:clamp(.95rem,1.35vw,1.15rem);margin:0}
+.cap b{font-weight:600}
+.cap span{display:block;color:var(--muted);font-size:.9em}
+
+.navy{background:var(--navy-bg);color:#fff;border-radius:26px;padding:clamp(18px,2.4vw,30px);display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center}
+.navy .x{font-family:var(--serif);font-style:italic;font-size:clamp(3rem,min(7vw,12vh),5.4rem);line-height:.9}
+.navy p{margin:0;font-size:clamp(.95rem,1.4vw,1.15rem);color:rgba(255,255,255,.9)}
+.navy small{display:block;margin-top:6px;opacity:.7;font-size:.78rem}
+
+/* Pasos */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,26px)}
+.step{position:relative;display:flex;flex-direction:column;gap:10px}
+.step .n{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.9rem}
+.step h3{font-family:var(--serif);font-weight:500;font-size:clamp(1.3rem,2.1vw,1.8rem);margin:0;color:var(--em);letter-spacing:-.01em}
+.step p{margin:0;color:var(--muted);font-size:clamp(.92rem,1.25vw,1.05rem)}
+.step:not(:last-child)::after{content:"";position:absolute;top:50%;right:calc(clamp(14px,2vw,26px) / -2 - 7px);width:14px;height:14px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 0 color-mix(in srgb,var(--blue) 50%,transparent);animation:ping 2.4s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+.hum h4{margin:0 0 14px;font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.bar{position:relative;height:16px;border-radius:999px;background:color-mix(in srgb,var(--muted) 18%,transparent)}
+.bar i{position:absolute;left:70%;width:20%;top:0;bottom:0;border-radius:999px;background:var(--blue);transform-origin:left}
+.slide.on .bar i{animation:grow 1.2s .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}}
+.scale{position:relative;height:22px;margin-top:8px;font-size:.78rem;color:var(--muted)}
+.scale span{position:absolute;top:0}
+.scale .mid{left:80%;transform:translateX(-50%);color:var(--blue-text);font-weight:700}
+.scale .e{right:0}
+.hum p{margin:12px 0 0;font-size:.9rem;color:var(--muted)}
+
+/* Plataforma */
+.chart-card h3{font-family:var(--serif);font-weight:500;font-size:1.35rem;margin:0;color:var(--em)}
+.chart-card .sub{margin-bottom:8px}
+.big svg{display:block;width:100%;height:auto}
+.band{fill:var(--crit-tint)}
+.alab{fill:var(--crit);font:700 12px var(--sans);letter-spacing:.06em}
+.lim{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px}
+.mini{font-size:.9rem;color:var(--muted);margin:0}
+.side h4{margin:0 0 4px;font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sites{list-style:none;margin:8px 0 0;padding:0}
+.sites li{display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:.92rem;align-items:baseline}
+.sites b{color:var(--em);font-variant-numeric:tabular-nums}
+.sites span{color:var(--muted)}
+.sites em{font-style:normal;color:var(--ink);font-weight:600}
+.note{font-size:.85rem;color:var(--muted);margin:0}
+
+.ok{width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--good) 16%,transparent);display:grid;place-items:center;flex:none}
+.ok svg{width:16px;height:16px;fill:none;stroke:var(--good);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.ok path{stroke-dasharray:1;stroke-dashoffset:0}
+.slide.on .ok path{animation:draw .6s calc(var(--i,0) * 120ms + 600ms) ease both}
+.ledger.norms li{grid-template-columns:30px clamp(140px,19vw,240px) minmax(0,1fr)}
+.nm{font-weight:700;font-size:clamp(1rem,1.5vw,1.2rem);color:var(--em)}
+
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,2vw,26px)}
+.two h3{font-family:var(--serif);font-weight:500;font-size:clamp(1.4rem,2.3vw,2rem);margin:0 0 6px;color:var(--em)}
+.list{list-style:none;margin:0;padding:0;display:grid}
+.list li{padding:clamp(9px,1.6vh,15px) 0;border-top:1px solid var(--line);font-size:clamp(.95rem,1.35vw,1.12rem)}
+.list li b{font-weight:600}
+.list li span{display:block;color:var(--muted);font-size:.9em}
+
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,2vw,26px)}
+.three h3{font-family:var(--serif);font-weight:500;font-size:clamp(1.25rem,2vw,1.7rem);margin:0 0 8px;color:var(--em);letter-spacing:-.01em}
+.three p{margin:0;color:var(--muted);font-size:clamp(.92rem,1.3vw,1.08rem)}
+.next{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+
+/* Cierre */
+.close{position:relative;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:clamp(20px,4vw,60px);align-items:center}
+.ripples{position:relative;aspect-ratio:1;max-width:100%;width:min(100%,380px);justify-self:center}
+.ripples i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--blue-text);opacity:0;animation:ripple 4.2s ease-out infinite}
+.ripples i:nth-child(2){animation-delay:1.4s}
+.ripples i:nth-child(3){animation-delay:2.8s}
+@keyframes ripple{0%{transform:scale(.12);opacity:.65}100%{transform:scale(1);opacity:0}}
+.ripples svg{position:absolute;left:50%;top:50%;width:18%;transform:translate(-50%,-50%)}
+.ripples path{fill:var(--blue)}
+
+/* Ciberseguridad */
+.zones{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,.8fr);align-items:stretch}
+.zone{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:2px}
+.zone small{font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.zone b{font-family:var(--serif);font-weight:500;font-size:clamp(1.15rem,1.9vw,1.5rem);color:var(--em);letter-spacing:-.01em}
+.zone span{font-size:.88rem;color:var(--muted)}
+.zone.core{background:var(--navy-bg)}
+.zone.core small,.zone.core span{color:rgba(255,255,255,.78)}
+.zone.core b{color:#fff}
+.zone.ghost{background:transparent;box-shadow:none;border:2px dashed var(--line)}
+.link{position:relative;display:grid;place-items:center;min-width:clamp(96px,12vw,150px);padding:0 6px}
+.link::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;background:linear-gradient(90deg,var(--blue-text) 50%,transparent 50%);background-size:16px 2px;animation:flow 1s linear infinite}
+.link.cut::before{background:linear-gradient(90deg,var(--crit) 50%,transparent 50%);background-size:16px 2px;animation:none;opacity:.55}
+.lock{position:relative;z-index:1;background:var(--bg);border:1.5px solid var(--blue-text);color:var(--blue-text);border-radius:999px;padding:4px 10px;font-size:.66rem;font-weight:700;text-align:center;line-height:1.25}
+.link.cut .lock{border-color:var(--crit);color:var(--crit)}
+@keyframes flow{to{background-position:16px 0}}
+.chip.prop{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn);margin-left:6px;vertical-align:middle}
+.eq{margin-top:10px!important;display:inline-block;background:var(--tint);color:var(--blue-text)!important;font-weight:600;font-size:.88rem!important;padding:8px 12px;border-radius:12px}
+.gov{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,2vw,24px)}
+.gov div{border-top:2px solid var(--blue-text);padding-top:10px}
+.gov b{display:block;font-size:.95rem;color:var(--em)}
+.gov span{display:block;font-size:.88rem;color:var(--muted);margin-top:2px}
+
+/* Pie */
+.foot{padding-block:14px 16px;display:grid;gap:10px}
+.segs{display:flex;gap:6px}
+.seg{flex:1 1 0;min-width:0;border:0;background:none;padding:6px 0;cursor:pointer;display:block}
+.seg span{display:block;height:5px;border-radius:999px;background:var(--line);overflow:hidden}
+.seg i{display:block;height:100%;width:0;background:var(--blue-text);border-radius:999px}
+.seg.done i,.seg.cur i{width:100%}
+.seg.cur.run i{width:0;animation:fillseg var(--dur) linear forwards}
+@keyframes fillseg{to{width:100%}}
+.meta{display:flex;justify-content:space-between;gap:12px;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta .hint{display:flex;gap:14px;align-items:center}
+.meta button{background:none;border:0;color:var(--blue-text);font-size:.8rem;font-weight:600;cursor:pointer;padding:2px 0}
+kbd{font:600 .72rem var(--sans);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px}
+
+/* Guion */
+.notes{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(88px + env(safe-area-inset-bottom,0px));max-width:880px;margin:0 auto;background:var(--navy-bg);color:#fff;border-radius:20px;padding:18px 22px;box-shadow:var(--shadow);z-index:20}
+.notes small{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-bottom:6px;font-weight:600}
+.notes p{margin:0;font-size:clamp(1rem,1.6vw,1.2rem);line-height:1.5}
+
+@media (max-width:960px){
+  .split,.split.even,.split.wide,.close{grid-template-columns:minmax(0,1fr)}
+  .steps,.three,.two{grid-template-columns:minmax(0,1fr)}
+  .step:not(:last-child)::after{display:none}
+  .nav{display:none}
+  .zones{grid-template-columns:minmax(0,1fr)}
+  .link{min-height:46px}
+  .link::before{display:none}
+  .gov{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ripples{width:min(60%,260px)}
+  .mock{margin-bottom:60px}
+}
+@media (max-width:600px){
+  .ledger li,.ledger.norms li{grid-template-columns:minmax(0,1fr)}
+  .ledger.norms li{grid-template-columns:30px minmax(0,1fr)}
+  .ledger.norms li .cap{grid-column:2}
+  .clock{display:none}
+  .meta .hint{display:none}
+  .pill{padding:10px 16px}
+  .chat{left:0;width:78%}
+  .navy{grid-template-columns:minmax(0,1fr)}
+  .gov{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .ripples i{opacity:.25;transform:scale(.6)}
+  .ripples i:nth-child(2){transform:scale(.85)}
+}
+</style>
+
+</head><body>
+<div class="app" id="app">
+  <header class="top">
+    <button class="brand" id="brand" type="button" aria-label="Volver al inicio">NÁCAR <b>SIEM</b></button>
+    <nav class="nav" aria-label="Capítulos">
+      <button type="button" data-go="1">Problema</button>
+      <button type="button" data-go="2">Solución</button>
+      <button type="button" data-go="4">Ciberseguridad</button>
+      <button type="button" data-go="5">Sustentabilidad</button>
+      <button type="button" data-go="7">Negocio</button>
+    </nav>
+    <div class="right">
+    </div>
+  </header>
+
+  <main class="slides" id="slides">
+
+    <!-- 1 Portada -->
+    <section class="slide on" data-title="Portada" aria-label="Portada">
+      <div class="wrap">
+        <div class="split">
+          <div class="stack">
+            <p class="eyebrow r" style="--i:0">Hackathon 2026 · Mérida</p>
+            <h1 class="r" style="--i:1">Nosotros también <em>desperdiciamos agua sin darnos cuenta.</em></h1>
+            <p class="lead r" style="--i:2">Por eso hicimos NÁCAR: una sola vista para detectar fugas, entender cada alerta y reutilizar agua.</p>
+            <div class="row-cta r" style="--i:3">
+              <button class="pill" type="button" data-next>Comenzar</button>
+            </div>
+          </div>
+          <div class="mock r" style="--i:2">
+            <div class="mock-back"></div>
+            <article class="card report">
+              <div class="rep-h"><h3>Reporte de consumo de agua</h3><span class="live">● SISTEMA ACTIVO</span></div>
+              <p class="sub">Hotel Mérida Demo · Últimas 24 horas</p>
+              <div class="tabs"><span>Hoy</span><span class="on">24 horas</span><span>7 días</span></div>
+              <div class="plot">
+                <div class="plot-h"><b>Consumo por hora</b><span>Litros · datos simulados</span></div>
+                <svg id="chart-hero" viewBox="0 0 520 170" role="img" aria-label="Gráfica simulada de consumo de agua por hora durante 24 horas"></svg>
+                <div class="plot-f"><span>Consumo total</span><b id="hero-total">41.5 m³</b></div>
+              </div>
+              <div class="meters">
+                <ul>
+                  <li><span class="dot" style="background:var(--good)"></span><span>Medidores de habitación</span><span>Normal</span></li>
+                  <li><span class="dot" style="background:var(--warn)"></span><span>Cisterna torre B</span><span>Revisar</span></li>
+                  <li><span class="dot" style="background:var(--muted)"></span><span>Torre de enfriamiento</span><span>Sin confirmar</span></li>
+                </ul>
+                <div class="gauge">
+                  <svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--line)" stroke-width="7"/><circle class="gring" cx="40" cy="40" r="34"/><text x="40" y="47" text-anchor="middle" font-family="Newsreader,Georgia,serif" font-size="22" fill="var(--em)">8.2</text></svg>
+                  Índice demo
+                </div>
+              </div>
+            </article>
+            <div class="card chat">
+              <div class="chat-top"><span class="avatar">N</span><div><b>Optimizador NÁCAR</b><small>¿Qué métricas de agua quieres optimizar?</small></div><span class="send">Enviar</span></div>
+              <div class="chips"><span>¿Registros de torre B?</span><span>¿Fugas detectadas?</span><span>¿Consumo por huésped?</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 Problema -->
+    <section class="slide" data-title="El problema" aria-label="El problema">
+      <div class="wrap">
+        <div class="split">
+          <div class="stack">
+            <p class="eyebrow r" style="--i:0">El problema</p>
+            <h2 class="r" style="--i:1">Un hotel gasta mucha agua y una parte se <em>pierde sin que nadie la vea.</em></h2>
+            <div class="navy r" style="--i:2">
+              <span class="x">×7</span>
+              <div><p>La huella de agua de enfriar infraestructura crítica y de IA podría multiplicarse por siete para 2050.</p><small>Herrera et al., kit de investigación del hackathon</small></div>
+            </div>
+            <p class="lead r" style="--i:3">Cerrar la llave cuando ya hay una fuga no alcanza.</p>
+          </div>
+          <ul class="ledger">
+            <li class="r" style="--i:2"><span class="fig"><b data-to="140" style="font-weight:inherit">140</b>–<b data-to="400" style="font-weight:inherit">400</b><small>L</small></span><p class="cap">por huésped al día en hoteles de nivel moderado.</p></li>
+            <li class="r" style="--i:3"><span class="fig"><b data-to="300" style="font-weight:inherit">300</b>–<b data-to="1200" style="font-weight:inherit">1,200</b><small>L</small></span><p class="cap">por habitación al día. Las duchas y los baños se llevan de 40% a 56%.</p></li>
+            <li class="r" style="--i:4"><span class="fig"><b data-to="750" style="font-weight:inherit">750</b><small>L</small></span><p class="cap">al día puede perder un solo inodoro con fuga o goteo continuo.</p></li>
+            <li class="r" style="--i:5"><span class="fig"><b data-to="32" style="font-weight:inherit">32</b>–<b data-to="68" style="font-weight:inherit">68</b><small>%</small></span><p class="cap">del agua del hotel puede ser fuga cuando el mantenimiento es malo.<span>Auditorías europeas</span></p></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 La idea -->
+    <section class="slide" data-title="La idea" aria-label="La idea">
+      <div class="wrap">
+        <div class="split">
+          <div class="stack">
+            <p class="eyebrow r" style="--i:0">La idea</p>
+            <h2 class="r" style="--i:1">Del agua que se tira a un recurso: <em>cosecha hídrica atmosférica.</em></h2>
+            <p class="lead r" style="--i:2">En Yucatán el aire es muy húmedo. Al enfriar, el aire acondicionado condensa agua que hoy se desecha. NÁCAR la mide, la gestiona y la manda a usos no potables.</p>
+          </div>
+          <div class="card hum r" style="--i:3">
+            <h4>Humedad relativa en la región</h4>
+            <div class="bar"><i></i></div>
+            <div class="scale"><span>0%</span><span class="mid">70% a 90%</span><span class="e">100%</span></div>
+            <p>Aire húmedo, agua de condensación en cada equipo de aire acondicionado.</p>
+          </div>
+        </div>
+        <div class="steps">
+          <div class="step r" style="--i:4"><span class="n">1</span><h3>Monitoreo SIEM</h3><p>Una interfaz en Python y Streamlit revisa litros y kWh en tiempo real y marca picos fuera de lo normal, sin conexión a internet.</p></div>
+          <div class="step r" style="--i:5"><span class="n">2</span><h3>Enrutamiento IoT</h3><p>Cuando hay suficiente agua condensada, el sistema cierra las válvulas municipales y da prioridad al agua recuperada.</p></div>
+          <div class="step r" style="--i:6"><span class="n">3</span><h3>Economía circular</h3><p>Un desecho se vuelve un activo: agua para inodoros y torres de enfriamiento, y menos extracción del acuífero.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Plataforma -->
+    <section class="slide" data-title="La plataforma" aria-label="La plataforma">
+      <div class="wrap">
+        <div class="stack">
+          <p class="eyebrow r" style="--i:0">La plataforma</p>
+          <h2 class="r" style="--i:1">Una sola vista para <em>ver, entender y actuar.</em></h2>
+        </div>
+        <div class="split wide">
+          <div class="card chart-card r" style="--i:2">
+            <div class="rep-h"><h3>Consumo de agua por hora</h3><span class="chip crit">Alerta · madrugada</span></div>
+            <p class="sub">Ilustración con datos simulados · litros por hora</p>
+            <div class="big"><svg id="chart-big" viewBox="0 0 640 270" role="img" aria-label="Gráfica simulada: consumo alto a las 03:00 y 04:00 marcado como alerta"></svg></div>
+          </div>
+          <div class="side stack">
+            <div class="r" style="--i:3">
+              <h4>Límites de alerta configurables</h4>
+              <div class="lim"><span class="chip">PUE &gt; 1.6</span><span class="chip">WUE &gt; 1.5 L/kWh</span><span class="chip">Temp &gt; 29 °C</span></div>
+              <p class="mini">PUE mide la eficiencia de la energía. WUE mide los litros de agua por kWh.</p>
+            </div>
+            <div class="r" style="--i:4">
+              <h4>Tres sitios de prueba</h4>
+              <ul class="sites">
+                <li><b>SIM-A</b><span><em>Aire.</em> Poca agua, sensible al calor exterior.</span></li>
+                <li><b>SIM-B</b><span><em>Evaporativa.</em> Consumo moderado, eficiente en clima seco.</span></li>
+                <li><b>SIM-C</b><span><em>Líquida.</em> Mejor control térmico, agua constante.</span></li>
+              </ul>
+            </div>
+            <p class="note r" style="--i:5">504 intervalos por hora con datos sintéticos. Todo corre en local, sin nube ni GPU.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 Ciberseguridad -->
+    <section class="slide" data-title="Ciberseguridad" aria-label="Ciberseguridad">
+      <div class="wrap">
+        <div class="stack">
+          <p class="eyebrow r" style="--i:0">Impacto en ciberseguridad</p>
+          <h2 class="r" style="--i:1">Una válvula conectada también es un blanco. <em>NÁCAR la vigila y la protege.</em></h2>
+        </div>
+        <div class="zones r" style="--i:2">
+          <div class="zone"><small>Zona OT</small><b>Sensores y válvulas</b><span>Agua, temperatura y cierre remoto</span></div>
+          <div class="link"><span class="lock">Segmentación OT · ISA/IEC 62443</span></div>
+          <div class="zone core"><small>Local, en CPU</small><b>SIEM NÁCAR</b><span>Detecta anomalías y guarda cada evento</span></div>
+          <div class="link cut"><span class="lock">Sin salida a internet</span></div>
+          <div class="zone ghost"><small>Nube</small><b>No la necesita</b><span>Menos puertas que atacar</span></div>
+        </div>
+        <div class="three">
+          <div class="r" style="--i:3"><h3>Qué detecta</h3><ul class="list"><li>Picos anómalos de consumo de agua y energía</li><li>Temperatura mayor a 29 °C</li><li>PUE mayor a 1.6 y WUE mayor a 1.5 L/kWh</li></ul></div>
+          <div class="r" style="--i:4"><h3>Cómo protege</h3><ul class="list"><li>Cierre remoto de válvulas con principios de segmentación OT</li><li>Funciona sin nube, con menos superficie de ataque</li><li>Cada evento queda registrado como evidencia</li></ul></div>
+          <div class="r" style="--i:5"><h3>Siguiente capa <span class="chip prop">Propuesta</span></h3><ul class="list"><li>Alerta si una válvula cambia sin orden del sistema</li><li>Válvula que falla en abierto: un ataque nunca corta el agua</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 GreenAI -->
+    <section class="slide" data-title="IA responsable" aria-label="IA responsable">
+      <div class="wrap">
+        <div class="split">
+          <div class="stack">
+            <p class="eyebrow r" style="--i:0">IA responsable · GreenAI</p>
+            <h2 class="r" style="--i:1">La IA no debe gastar más energía <em>de la que ahorra.</em></h2>
+            <p class="lead r" style="--i:2">Comparamos reglas fijas contra un modelo ligero, Isolation Forest. Corre en el procesador de una laptop, sin conexión.</p>
+            <div class="lim r" style="--i:3"><span class="chip">Solo CPU</span><span class="chip">Sin nube</span><span class="chip">Sin GPU</span><span class="chip">Modo offline</span></div>
+          </div>
+          <ul class="ledger">
+            <li class="r" style="--i:2"><span class="fig">~<b data-to="1.45" data-dec="2" style="font-weight:inherit">1.45</b><small>seg</small></span><p class="cap">de tiempo de CPU<span>Una corrida completa</span></p></li>
+            <li class="r" style="--i:3"><span class="fig">~<b data-to="45.2" data-dec="1" style="font-weight:inherit">45.2</b><small>MB</small></span><p class="cap">de pico de memoria RAM</p></li>
+            <li class="r" style="--i:4"><span class="fig">~<b data-to="0.0012" data-dec="4" style="font-weight:inherit">0.0012</b><small>g CO₂e</small></span><p class="cap">de emisiones estimadas</p></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 Sustentabilidad -->
+    <section class="slide" data-title="Sustentabilidad" aria-label="Sustentabilidad y gobernanza hídrica">
+      <div class="wrap">
+        <div class="stack">
+          <p class="eyebrow r" style="--i:0">Sustentabilidad y gobernanza hídrica</p>
+          <h2 class="r" style="--i:1">Ahorrar agua <em>sin gastar más carbono.</em></h2>
+        </div>
+        <div class="three">
+          <div class="card r" style="--i:2"><h3>Agua</h3><p>Cada litro recuperado es un litro que no se extrae de cenotes ni de ríos subterráneos.</p><p class="eq">Balance neto = agua de la red − agua reutilizada</p></div>
+          <div class="card r" style="--i:3"><h3>Carbono</h3><p>Condensar gasta energía. Si viene de combustibles fósiles, baja el agua pero sube el carbono. Por eso medimos litros y kWh juntos y la IA corre ligera.</p></div>
+          <div class="card r" style="--i:4"><h3>Economía circular</h3><p>El agua de condensación pasa de residuo a recurso para inodoros y torres de enfriamiento. El aire sale más seco y frío, y eso ayuda a cuidar los equipos.</p></div>
+        </div>
+        <div class="r" style="--i:5">
+          <p class="eyebrow" style="margin-bottom:10px">Gobernanza hídrica</p>
+          <div class="gov">
+            <div><b>Ley General de Aguas (2025)</b><span>Prioriza el reúso y crea el Registro Nacional del Agua.</span></div>
+            <div><b>CONAGUA</b><span>El historial por hora respalda el volumen y el uso del agua.</span></div>
+            <div><b>NOM-003-SEMARNAT-1997</b><span>El agua de condensación va solo a servicios no potables.</span></div>
+            <div><b>ISO 14001:2026</b><span>Reportes de mitigación del impacto ambiental.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 Escalabilidad y negocio -->
+    <section class="slide" data-title="Negocio" aria-label="Escalabilidad y modelo de negocio">
+      <div class="wrap">
+        <div class="stack">
+          <p class="eyebrow r" style="--i:0">Escalabilidad y modelo de negocio</p>
+          <h2 class="r" style="--i:1">Crece a más hoteles y <em>a climas secos.</em></h2>
+        </div>
+        <div class="two">
+          <div class="card r" style="--i:2">
+            <h3>Escalabilidad</h3>
+            <ul class="list">
+              <li><b>Clima húmedo</b><span>La condensación del aire acondicionado basta para cosechar agua.</span></li>
+              <li><b>Clima seco</b><span>Desecantes captan la humedad de noche y el calor la libera. NÁCAR ajusta las torres evaporativas según el clima para bajar el WUE.</span></li>
+              <li><b>Más usuarios</b><span>Hoteles y centros de datos. Ya probamos tres tipos de enfriamiento: aire, evaporativo y líquido.</span></li>
+            </ul>
+          </div>
+          <div class="card r" style="--i:3">
+            <h3>Modelo de negocio</h3>
+            <ul class="list">
+              <li><b>Quién paga</b><span>Hoteles y centros de datos en zonas con estrés hídrico.</span></li>
+              <li><b>Por qué les conviene</b><span>Deducción de 100% del ISR por el equipo (LISR, art. 34, fracc. XIII), menos derechos de descarga y descuentos de predial de hasta 15% o 20% en algunos municipios. Siguen operando si falta agua.</span></li>
+              <li><b>Cómo cobramos <span class="chip prop">Propuesta</span></b><span>Suscripción por sitio al SIEM, más la instalación del equipo.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 Límites -->
+    <section class="slide" data-title="Límites" aria-label="Límites del prototipo">
+      <div class="wrap">
+        <div class="stack">
+          <p class="eyebrow r" style="--i:0">Lo que todavía falta</p>
+          <h2 class="r" style="--i:1">Es un prototipo y <em>lo decimos claro.</em></h2>
+        </div>
+        <div class="three">
+          <div class="card r" style="--i:2"><h3>Datos sintéticos</h3><p>El modelo no se ha calibrado con la demora natural de sensores térmicos reales.</p></div>
+          <div class="card r" style="--i:3"><h3>Falsas alertas</h3><p>Una actualización masiva de servidores sube la temperatura y podría marcarse como anomalía.</p></div>
+          <div class="card r" style="--i:4"><h3>Pruebas en laptops</h3><p>Los tiempos y la memoria se midieron en equipos de desarrollo. En el borde pueden cambiar.</p></div>
+        </div>
+        <div class="next r" style="--i:5"><span class="chip">Siguiente paso</span><span class="tag" style="font-size:1rem;color:var(--ink)">Calibrar con datos reales de operación.</span></div>
+      </div>
+    </section>
+
+    <!-- 9 Cierre -->
+    <section class="slide" data-title="Cierre" aria-label="Cierre">
+      <div class="wrap">
+        <div class="close">
+          <div class="stack">
+            <p class="eyebrow r" style="--i:0">AguaSegura AI · Hackathon 2026</p>
+            <h1 class="r" style="--i:1">Cada litro que no se extrae es un litro que <em>el acuífero conserva.</em></h1>
+            <div class="row-cta r" style="--i:2">
+              <span class="chip">Equipo NÁCAR</span>
+              <span class="tag" style="font-size:1.05rem;color:var(--ink)">Gracias. ¿Preguntas?</span>
+              <button class="pill ghost" type="button" data-restart>Volver al inicio</button>
+            </div>
+          </div>
+          <div class="ripples r" style="--i:2" aria-hidden="true">
+            <i></i><i></i><i></i>
+            <svg viewBox="0 0 40 52"><path d="M20 2C20 2 4 22 4 34a16 16 0 0 0 32 0C36 22 20 2 20 2z"/></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="segs" id="segs" role="group" aria-label="Diapositivas, ancho según el tiempo asignado"></div>
+    <div class="meta">
+      <span id="count">1 / 9</span>
+      <span class="hint"><span><kbd>←</kbd> <kbd>→</kbd> navegar</span><button type="button" id="notesBtn">Guion (N)</button><button type="button" id="fsBtn">Pantalla completa (F)</button></span>
+    </div>
+  </footer>
+</div>
+
+<aside class="notes" id="notes" hidden aria-live="polite"><small id="notesH">Guion</small><p id="notesP"></p></aside>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var N = slides.length;
+  var DUR = [10,17,18,22,30,18,25,20,10,10]; /* suma 180 s */
+  var SCRIPT = [
+    'Hola, somos NÁCAR. Seamos honestos: nosotros también desperdiciamos agua sin darnos cuenta. Por eso creamos una plataforma para verla, protegerla y reutilizarla.',
+    'Un huésped gasta de 140 a 400 litros al día y un inodoro con fuga pierde hasta 750. Con mal mantenimiento, las fugas llegan al 32 a 68 por ciento del agua. Y la huella de agua de la IA y los centros de datos podría ser siete veces mayor en 2050.',
+    'En Yucatán la humedad llega a 70 o 90 por ciento. Los aires acondicionados condensan agua que hoy se tira. NÁCAR la mide y la manda a inodoros y torres de enfriamiento, para sacar menos agua del acuífero.',
+    'Esta es la plataforma. Corre en local con Python y Streamlit. Revisa agua y energía hora por hora y marca los picos raros, como este de las tres de la madrugada. Los límites son configurables: PUE, WUE y temperatura. Probamos con 504 horas simuladas en tres sitios.',
+    'Ahora, ciberseguridad. Una válvula conectada también es un blanco. Por eso la zona de sensores y válvulas va separada de la red, con principios de ISA/IEC 62443, y NÁCAR funciona en local, sin nube: hay menos puertas que atacar. Detecta picos anómalos de consumo y temperatura, y guarda cada evento como evidencia. Proponemos también alertar si una válvula cambia sin orden del sistema, y que falle en abierto para que un ataque nunca corte el agua.',
+    'Y la IA no debe gastar más energía de la que ahorra. Usamos un modelo ligero, Isolation Forest: unos 1.45 segundos, 45 megas de memoria y 0.0012 gramos de CO2, en una laptop y sin GPU.',
+    'Sustentabilidad. Cada litro recuperado es un litro que no sale del acuífero. Cuidamos el efecto rebote: condensar gasta energía, por eso medimos litros y kilowatts juntos y usamos IA ligera. Un residuo se vuelve recurso, y el historial por hora sirve de evidencia para la Ley General de Aguas, la NOM-003, la ISO 14001 y CONAGUA.',
+    'Escala a más hoteles y centros de datos. En clima seco usamos desecantes para captar humedad, y NÁCAR ajusta las torres evaporativas para bajar el WUE. El hotel ahorra agua, deduce el 100 por ciento del ISR del equipo y paga menos derechos de descarga. Proponemos cobrar una suscripción por sitio.',
+    'Es un prototipo: datos sintéticos, posibles falsas alertas y pruebas en laptops. Lo siguiente es calibrar con datos reales.',
+    'Cada litro que no se extrae es un litro que se queda en el acuífero de Yucatán. Somos NÁCAR. Gracias.'
+  ];
+  var cur = 0, auto = false, autoT = null, started = null, clockT = null;
+
+  /* ---------- Gráficas ---------- */
+  var DATA = [900,820,780,2350,2300,1000,1500,2200,2600,2300,1900,1700,1800,1900,1700,1600,1800,2200,2700,2900,2600,2100,1500,1100];
+  var NORMAL = DATA.slice(); NORMAL[3] = 900; NORMAL[4] = 950;
+
+  function smooth(p){
+    var d = 'M' + p[0][0].toFixed(1) + ',' + p[0][1].toFixed(1);
+    for (var i = 0; i < p.length - 1; i++){
+      var p0 = p[i-1] || p[i], p1 = p[i], p2 = p[i+1], p3 = p[i+2] || p2;
+      var c1x = p1[0] + (p2[0]-p0[0])/6, c1y = p1[1] + (p2[1]-p0[1])/6;
+      var c2x = p2[0] - (p3[0]-p1[0])/6, c2y = p2[1] - (p3[1]-p1[1])/6;
+      d += ' C' + [c1x,c1y,c2x,c2y,p2[0],p2[1]].map(function(n){return n.toFixed(1)}).join(' ');
+    }
+    return d;
+  }
+
+  function chart(svg, data, o){
+    var W=o.W,H=o.H,L=o.L,R=o.R,T=o.T,B=o.B,max=o.max,n=data.length;
+    var X=function(i){return L + i*(W-L-R)/(n-1)};
+    var Y=function(v){return T + (1-v/max)*(H-T-B)};
+    var pts = data.map(function(v,i){return [X(i),Y(v)]});
+    var line = smooth(pts);
+    var gid = 'g' + Math.random().toString(36).slice(2,7);
+    var s = '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--lav)"/><stop offset="1" style="stop-color:var(--lav);stop-opacity:0"/></linearGradient></defs>';
+    (o.yt||[]).forEach(function(v){
+      s += '<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/>';
+      if (o.ylabels) s += '<text class="tick" x="'+(L-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v.toLocaleString('es-MX')+'</text>';
+    });
+    if (o.band){
+      s += '<rect class="band" x="'+X(o.band[0])+'" y="'+T+'" width="'+(X(o.band[1])-X(o.band[0]))+'" height="'+(H-T-B)+'" rx="8"/>';
+      s += '<text class="alab" x="'+((X(o.band[0])+X(o.band[1]))/2)+'" y="'+(T+16)+'" text-anchor="middle">ALERTA</text>';
+    }
+    s += '<path class="ar" d="'+line+' L'+X(n-1)+','+(H-B)+' L'+X(0)+','+(H-B)+' Z" fill="url(#'+gid+')"/>';
+    s += '<path class="ln" pathLength="1" d="'+line+'"/>';
+    (o.xt||[]).forEach(function(h){
+      var lab = String(h===23?24:h).padStart(2,'0')+':00';
+      var anchor = h===0 ? 'start' : (h===n-1 ? 'end' : 'middle');
+      s += '<text class="tick" x="'+X(h)+'" y="'+(H-5)+'" text-anchor="'+anchor+'">'+lab+'</text>';
+    });
+    if (o.mark){
+      o.mark.forEach(function(i){
+        s += '<g class="pk"><circle class="pulse" cx="'+X(i)+'" cy="'+Y(data[i])+'" r="5"/><circle cx="'+X(i)+'" cy="'+Y(data[i])+'" r="5" fill="var(--surface)" stroke="'+(o.markColor||'var(--blue-text)')+'" stroke-width="3"/></g>';
+      });
+    }
+    svg.innerHTML = s;
+  }
+
+  chart(document.getElementById('chart-hero'), NORMAL, {W:520,H:170,L:6,R:6,T:12,B:22,max:3200,yt:[1000,2000,3000],xt:[0,8,16,23],mark:[19],markColor:'var(--blue-text)'});
+  var tot = NORMAL.reduce(function(a,b){return a+b},0)/1000;
+  document.getElementById('hero-total').textContent = tot.toFixed(1) + ' m³';
+  /* el pulso de la portada es azul, no de alerta */
+  var heroPulse = document.querySelector('#chart-hero .pulse'); if (heroPulse) heroPulse.style.fill = 'var(--blue-text)';
+  chart(document.getElementById('chart-big'), DATA, {W:640,H:270,L:50,R:10,T:14,B:26,max:3200,yt:[0,1000,2000,3000],ylabels:true,xt:[0,4,8,12,16,20,23],band:[2.5,4.5],mark:[3,4],markColor:'var(--crit)'});
+
+  /* ---------- Conteo animado ---------- */
+  function countUp(root){
+    if (reduce) return;
+    root.querySelectorAll('[data-to]').forEach(function(el){
+      var to = parseFloat(el.dataset.to), dec = parseInt(el.dataset.dec||'0',10), t0 = performance.now(), dur = 1300;
+      var fmt = function(v){return v.toLocaleString('es-MX',{minimumFractionDigits:dec,maximumFractionDigits:dec})};
+      (function f(t){
+        var k = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-k,3);
+        el.textContent = fmt(to*e);
+        if (k<1) requestAnimationFrame(f); else el.textContent = fmt(to);
+      })(t0);
+    });
+  }
+
+  /* ---------- Pie con segmentos ---------- */
+  var segs = document.getElementById('segs');
+  slides.forEach(function(sl,i){
+    var b = document.createElement('button');
+    b.type='button'; b.className='seg'; b.id='seg'+i; b.style.flexGrow = DUR[i];
+    b.setAttribute('aria-label','Ir a la diapositiva '+(i+1)+': '+sl.dataset.title+', '+DUR[i]+' segundos');
+    b.title = (i+1)+'. '+sl.dataset.title+' · '+DUR[i]+' s';
+    b.innerHTML = '<span><i></i></span>';
+    b.addEventListener('click', function(){ go(i); });
+    segs.appendChild(b);
+  });
+
+  function startClock(){} function resetClock(){}
+
+  /* ---------- Navegación ---------- */
+  var notes = document.getElementById('notes');
+  function go(n){
+    n = Math.max(0, Math.min(N-1, n));
+    if (n === 0 && cur !== 0) resetClock();
+    if (n > 0) startClock();
+    slides.forEach(function(s,i){ s.classList.toggle('on', i===n); if (i===n) s.scrollTop = 0; });
+    cur = n;
+    document.querySelectorAll('.seg').forEach(function(b,i){
+      b.classList.toggle('done', i<n); b.classList.toggle('cur', i===n);
+      b.classList.remove('run');
+      if (i===n){ b.style.setProperty('--dur', DUR[i]+'s'); void b.offsetWidth; if (auto && !reduce) b.classList.add('run'); }
+    });
+    document.getElementById('count').textContent = (n+1)+' / '+N;
+    document.querySelectorAll('.nav button').forEach(function(b){
+      var t = parseInt(b.dataset.go,10), nxt = Array.prototype.map.call(document.querySelectorAll('.nav button'),function(x){return parseInt(x.dataset.go,10)});
+      var idx = nxt.indexOf(t), end = nxt[idx+1] === undefined ? N : nxt[idx+1];
+      b.setAttribute('aria-current', (n>=t && n<end) ? 'true' : 'false');
+    });
+    document.getElementById('notesH').textContent = 'Guion · diapositiva '+(n+1)+' · unos '+DUR[n]+' s';
+    document.getElementById('notesP').textContent = SCRIPT[n];
+    countUp(slides[n]);
+    schedule();
+  }
+  function schedule(){
+    clearTimeout(autoT);
+    if (!auto) return;
+    autoT = setTimeout(function(){ if (cur < N-1) go(cur+1); else stopAuto(); }, DUR[cur]*1000);
+  }
+  document.getElementById('brand').addEventListener('click', function(){ go(0); });
+  document.querySelectorAll('[data-go]').forEach(function(b){ b.addEventListener('click', function(){ go(parseInt(b.dataset.go,10)); }); });
+  document.querySelectorAll('[data-next]').forEach(function(b){ b.addEventListener('click', function(){ go(cur+1); }); });
+  document.querySelectorAll('[data-restart]').forEach(function(b){ b.addEventListener('click', function(){ go(0); }); });
+
+  function toggleNotes(){ notes.hidden = !notes.hidden; }
+  document.getElementById('notesBtn').addEventListener('click', toggleNotes);
+  function fs(){
+    try {
+      if (document.fullscreenElement) { document.exitFullscreen(); }
+      else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(function(){}); }
+    } catch(e){}
+  }
+  document.getElementById('fsBtn').addEventListener('click', fs);
+
+  document.addEventListener('keydown', function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k==='ArrowRight' || k==='PageDown' || k===' ' || k==='Enter'){
+      if (document.activeElement && document.activeElement.tagName==='BUTTON' && (k===' '||k==='Enter')) return;
+      e.preventDefault(); go(cur+1);
+    } else if (k==='ArrowLeft' || k==='PageUp'){ e.preventDefault(); go(cur-1); }
+    else if (k==='Home'){ go(0); }
+    else if (k==='End'){ go(N-1); }
+    else if (k==='n' || k==='N'){ toggleNotes(); }
+    else if (k==='f' || k==='F'){ fs(); }
+    else if (k==='r' || k==='R'){ go(0); }
+    else if (/^[1-9]$/.test(k)){ go(parseInt(k,10)-1); }
+  });
+
+  var sx = null, sy = null;
+  document.getElementById('slides').addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+  document.getElementById('slides').addEventListener('touchend', function(e){
+    if (sx===null) return;
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5) go(dx<0 ? cur+1 : cur-1);
+    sx = null;
+  }, {passive:true});
+
+  go(0);
+})();
+</script>
+
+</body></html>

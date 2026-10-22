@@ -1,10 +1,12 @@
-# NÁCAR SIEM · AguaSegura AI
+# NÁCAR SIEM · Ciberseguridad OT del enfriamiento
 
-**Nombre de propuesta:** NÁCAR SIEM, Núcleo de Análisis, Correlación y Atención de Riesgos Hídricos. **Propuesta de valor:** ayudar a hoteles de Mérida a detectar consumos atípicos, priorizar inspecciones y comprobar correcciones con lecturas comparables y evidencia de triage. El estimador calcula costo directo del agua con la tarifa ingresada por el hotel; no predice ahorros antes de medir un piloto.
+**Entrega vigente para jueces:** https://themiguelvargas10.github.io/hackathon/jueces/
 
-La demo hotelera local con backend está en [`hotel-siem/`](hotel-siem/). Usa datos sintéticos, no opera sensores ni controla instalaciones. Revisa [`docs/SIEM_HOTEL_AGUA.md`](docs/SIEM_HOTEL_AGUA.md) para alcance, triage, seguridad y revisión de las cifras recibidas. Incluye un estimador de costo directo que requiere litros medidos y tarifa del recibo. Los dos PDF recibidos están en `docs/referencias/`.
+**Enfoque:** correlacionar señales de sistemas de enfriamiento (agua, energía y temperatura) con eventos OT, priorizar revisiones humanas y estimar costos directos. Los hoteles son un sector de aplicación posible; el alcance principal es el enfriamiento y la ciberseguridad OT.
 
-El tablero original AquaGuard del reto CIFOX queda como módulo de referencia para refrigeración simulada. Sus datos y métricas no representan un hotel y no deben presentarse como resultados hoteleros.
+[Presentación HTML corregida](NACAR-presentacion.html) · [Alcance vigente](docs/ENFOQUE_OT_ENFRIAMIENTO.md). La página pública usa escenarios inventados independientes del kit confidencial. El análisis del kit se ejecuta localmente con autorización.
+
+Los PDF, capturas y consola hotelera anteriores son antecedentes del diseño; no constituyen resultados del alcance actual. El HTML original aportado por el equipo se conserva en docs/historico/ como versión anterior sin corregir.
 
 Ruta B: FastAPI + interfaz web local + reglas explicables e Isolation Forest educativo por sitio. Docker ejecuta todo en CPU; sin nube ni servicios externos durante el análisis. El kit se monta localmente en solo lectura.
 
