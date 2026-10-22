@@ -57,13 +57,14 @@ body{font-family:var(--sans)}
 <script>
 
 const staticDemo=location.hostname.endsWith('github.io');
+const presentationMode=staticDemo&&new URLSearchParams(location.search).get('presentation')==='1';
 let dashboard={alerts:[],audit:[]}, picked=null, token=sessionStorage.getItem('ag_demo_token')||'';
 const $=id=>document.getElementById(id);
 if(staticDemo){document.title='NÁCAR SIEM | Demo pública';document.querySelector('.badge').textContent='● DEMO PÚBLICA · DATOS SINTÉTICOS'}
 function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 function seedStatic(){return {alerts:[{id:'AG-104',title:'Flujo nocturno en cisterna',zone:'Cisterna',timestamp:new Date().toISOString(),severity:'alta',signal:'water_flow',evidence:'38 L/min durante 18 min; ocupación 42 %; sin riego programado en los datos demo.',status:'new',owner:''},{id:'AG-105',title:'Lavandería sobre su patrón',zone:'Lavandería',timestamp:new Date().toISOString(),severity:'media',signal:'water_intensity',evidence:'14.2 L/kg frente a una referencia simulada de 10.8 L/kg.',status:'new',owner:''},{id:'AG-106',title:'Cambio de configuración de bomba',zone:'Cisterna',timestamp:new Date().toISOString(),severity:'media',signal:'config_change',evidence:'Cambio simulado; confirmar autorización y bitácora de mantenimiento.',status:'new',owner:''}],audit:[{alert_id:'SYSTEM',action:'demo_seed',actor:'NÁCAR SIEM',note:'Eventos sintéticos para demostración pública.',at:new Date().toISOString()}]}}
 function saveStatic(){localStorage.setItem('nacar_pages_demo',JSON.stringify(dashboard))}
-async function load(){if(staticDemo){dashboard=JSON.parse(localStorage.getItem('nacar_pages_demo')||'null')||seedStatic();render();return}try{const r=await fetch('/api/dashboard');dashboard=await r.json();render();}catch(e){toast('No responde el backend local. Ejecuta INICIAR_WINDOWS.cmd o python server.py.')}}
+async function load(){if(staticDemo){dashboard=presentationMode?seedStatic():(JSON.parse(localStorage.getItem('nacar_pages_demo')||'null')||seedStatic());render();return}try{const r=await fetch('/api/dashboard');dashboard=await r.json();render();}catch(e){toast('No responde el backend local. Ejecuta INICIAR_WINDOWS.cmd o python server.py.')}}
 function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function render(){
  const alerts=dashboard.alerts||[];
