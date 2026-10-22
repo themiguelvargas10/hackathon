@@ -1,27 +1,13 @@
-# Verificación de la entrega
+# Verificación · actualización del 22 octubre 2026
 
-Entorno: Python 3.12, Windows. Sin dependencias externas instaladas.
+18 pruebas aprobadas en Python 3.12 / Windows con FastAPI TestClient: cálculo ponderado, vacíos y filtros, CSV inválido, independencia de etiquetas y evaluación, modelo, benchmark, API y exportaciones, rechazo de origen ajeno, correlación temporal inclusive y separación entre sitios.
 
-## Comprobado
+Las pruebas de correlación usan fixtures sintéticos mínimos, separados del CSV oficial. No se modificó el kit ni se inventaron coincidencias para la demo.
 
-- 16 pruebas unitarias y del contrato HTTP aprobadas.
-- Fórmulas contrastadas con los valores de referencia publicados en el kit CIFOX.
-- Vacíos, fechas inválidas, duplicados, números no finitos, dominios inválidos y huecos horarios.
-- Invariancia de predicciones al cambiar etiquetas y escenarios.
-- Invariancia del ajuste al cambiar las filas de evaluación.
-- Separación de objetivo numérico y eventos OT.
-- Filtros y exportaciones JSON/CSV.
-- Respuestas HTTP serializadas, rutas estáticas, códigos de error y rechazo de origen ajeno al medir.
-- Sintaxis de JavaScript comprobada con Node.
-- Arranque del servidor local confirmado: anuncia la URL y carga los 504 registros.
-- Informe reproducible en results/verification.json.
+La configuración Docker se entrega, pero no se pudo construir ni ejecutar aquí porque Docker no está instalado en este entorno. El equipo debe confirmar `docker compose up --build -d`, estado healthy y el recorrido de demo en su equipo. No presentar Docker como validado hasta hacerlo.
 
-## Limitación de verificación
+Dependencias principales fijadas en requirements.txt; imagen base y dependencias transitivas no quedan congeladas por digest. No se certifica un despliegue productivo. La app es local y no incorpora autenticación multiusuario.
 
-Las conexiones al servidor local están bloqueadas en el entorno de construcción. El navegador integrado devolvió ERR_CONNECTION_TIMED_OUT. Por ello **no se completó la revisión visual ni el recorrido interactivo en navegador**. Las pruebas HTTP ejercitan el parser y las respuestas en memoria, no una conexión TCP real.
+Starlette emite un aviso de futura retirada del adaptador httpx usado por TestClient; las pruebas actuales pasan. No afecta el servidor uvicorn.
 
-El archivo de arranque para Windows y el script macOS/Linux se entregan, pero no se accionaron mediante doble clic en una instalación externa. La portabilidad a macOS/Linux no se ejecutó en este entorno.
-
-Antes de presentar: arrancar con INICIAR_WINDOWS.cmd, seguir el recorrido del README y revisar vista de escritorio, filtros, pestañas, ficha de alerta, exportaciones y medición. Repetir sin conexión y en una segunda laptop.
-
-Estas limitaciones de entorno no equivalen a una certificación de que la interfaz esté libre de fallos. No se afirma revisión visual completa.
+Verificación adicional: servidor Uvicorn iniciado y panel revisado en navegador, incluyendo la sección cyber. Con reglas y semana completa: 5 eventos OT, 0 coincidencias conjuntas, 16 alertas numéricas sin OT cercano. JavaScript validado con Node.

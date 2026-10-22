@@ -1,104 +1,80 @@
-"""Servidor local de solo lectura. Ejecutar: python server.py"""
+"""AquaGuard: API FastAPI local sobre un kit montado de solo lectura."""
 import argparse
 import csv
 import io
-import json
-import threading
-import webbrowser
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs, urlparse
-from aquaguard.core import Project, ROOT
+import os
+from contextlib import asynccontextmanager
+from pathlib import Path
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, Response
+from aquaguard.core import Project, ROOT, DATA
+from aquaguard.cyber import correlate
 
+def create_app(data_path=None):
+    @asynccontextmanager
+    async def lifespan(app):
+        path = Path(data_path or os.environ.get('AQUAGUARD_DATA', str(DATA)))
+        if not path.is_file():
+            raise RuntimeError('Falta el CSV del kit: colócalo en data/operaciones_simuladas.csv. Ruta: '+str(path))
+        app.state.project = Project(path)
+        yield
 
-def make_handler(project):
-    class Handler(BaseHTTPRequestHandler):
-        def send(self, body, kind='application/json; charset=utf-8', status=200, filename=None):
-            if not isinstance(body, bytes):
-                body = body.encode('utf-8')
-            self.send_response(status)
-            self.send_header('Content-Type', kind)
-            self.send_header('Content-Length', str(len(body)))
-            self.send_header('Cache-Control', 'no-store')
-            self.send_header('X-Content-Type-Options', 'nosniff')
-            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'")
-            if filename:
-                self.send_header('Content-Disposition', f'attachment; filename="{filename}"')
-            self.end_headers()
-            self.wfile.write(body)
+    app = FastAPI(title='AquaGuard Cyber', lifespan=lifespan, docs_url=None, redoc_url=None, openapi_url=None)
 
-        def send_json(self, payload, status=200):
-            self.send(json.dumps(payload, ensure_ascii=False, allow_nan=False), status=status)
+    @app.middleware('http')
+    async def headers(request, call_next):
+        response = await call_next(request)
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"
+        return response
 
-        def do_GET(self):
-            u = urlparse(self.path)
-            static = {'/': ('index.html', 'text/html; charset=utf-8'),
-                      '/app.js': ('app.js', 'text/javascript; charset=utf-8'),
-                      '/style.css': ('style.css', 'text/css; charset=utf-8'),
-                      '/favicon.svg': ('favicon.svg', 'image/svg+xml')}
-            try:
-                if u.path in static:
-                    name, kind = static[u.path]
-                    return self.send((ROOT/'web'/name).read_bytes(), kind)
-                if u.path == '/api/health':
-                    return self.send_json({'status': 'ok', 'simulated': True, 'rows':len(project.rows)})
-                if u.path not in ('/api/dashboard','/api/export.json','/api/alerts.csv'):
-                    return self.send_json({'error':'Ruta no encontrada.'},404)
-                query = parse_qs(u.query, keep_blank_values=True)
-                allowed = {'site','start','end','split','method'}
-                if set(query)-allowed or any(len(v)!=1 for v in query.values()):
-                    raise ValueError('Parámetros desconocidos o repetidos.')
-                params = {k:v[0] for k,v in query.items()}
-                report = project.dashboard(**params)
-                if u.path.endswith('.csv'):
-                    buffer = io.StringIO(newline='')
-                    writer = csv.writer(buffer)
-                    writer.writerow(['DATOS SIMULADOS - AquaGuard - alertas, no diagnóstico'])
-                    writer.writerow(['sitio','inicio_utc','detector','motivos','litros','pue','litros_kwh_it','temperatura_entrada_c','evento_ot'])
-                    for a in report['alerts']:
-                        writer.writerow([a['site'],a['timestamp'],report['method'],'; '.join(a['reasons']),a['water_l'],a['pue'],a['water_intensity'],a['inlet_temp_c'],a['ot_alert']])
-                    return self.send(('\ufeff'+buffer.getvalue()).encode('utf-8'),'text/csv; charset=utf-8',filename='aquaguard-alertas.csv')
-                return self.send(json.dumps(report,ensure_ascii=False,allow_nan=False),
-                                 filename='aquaguard-informe.json' if u.path.endswith('.json') else None)
-            except ValueError as exc:
-                return self.send_json({'error':str(exc)},400)
-            except Exception:
-                self.log_error('Error interno procesando la petición')
-                return self.send_json({'error':'No se pudo completar la petición. Revisa la terminal.'},500)
+    @app.get('/api/health')
+    def health(request: Request):
+        return dict(status='ok', simulated=True, rows=len(request.app.state.project.rows))
 
-        def do_POST(self):
-            # Solo se acepta esta operación de cálculo desde el propio origen local.
-            origin = self.headers.get('Origin')
-            expected = 'http://127.0.0.1:' + str(self.server.server_port)
-            if self.path != '/api/benchmark':
-                return self.send_json({'error':'Método no permitido.'},405)
-            if origin and origin != expected:
-                return self.send_json({'error':'Origen no permitido.'},403)
-            return self.send_json(project.benchmark())
+    @app.post('/api/benchmark')
+    def benchmark(request: Request):
+        origin = request.headers.get('origin')
+        if origin and origin != str(request.base_url).rstrip('/'):
+            return JSONResponse({'error':'Origen no permitido.'},status_code=403)
+        return request.app.state.project.benchmark()
 
-    return Handler
+    @app.get('/{path:path}')
+    def get(path: str, request: Request):
+        static = {'':('index.html','text/html'), 'app.js':('app.js','text/javascript'),
+                  'style.css':('style.css','text/css'), 'favicon.svg':('favicon.svg','image/svg+xml')}
+        if path in static:
+            name, kind = static[path]
+            return Response((ROOT/'web'/name).read_bytes(), media_type=kind)
+        if path not in ('api/dashboard','api/export.json','api/alerts.csv'):
+            return JSONResponse({'error':'Ruta no encontrada.'},status_code=404)
+        pairs = list(request.query_params.multi_items())
+        if any(k not in {'site','start','end','split','method'} for k,v in pairs) or len(dict(pairs)) != len(pairs):
+            return JSONResponse({'error':'Parámetros desconocidos o repetidos.'},status_code=400)
+        try:
+            report = request.app.state.project.dashboard(**dict(pairs))
+        except ValueError as exc:
+            return JSONResponse({'error':str(exc)},status_code=400)
+        report['cyber'] = correlate(report['alerts'])
+        if path.endswith('.csv'):
+            buffer = io.StringIO(newline='')
+            writer = csv.writer(buffer)
+            writer.writerow(['DATOS SIMULADOS - AquaGuard - alertas, no diagnóstico'])
+            writer.writerow(['sitio','inicio_utc','detector','motivos','litros','pue','litros_kwh_it','temperatura_entrada_c','evento_ot'])
+            for a in report['alerts']:
+                writer.writerow([a['site'],a['timestamp'],report['method'],'; '.join(a['reasons']),a['water_l'],a['pue'],a['water_intensity'],a['inlet_temp_c'],a['ot_alert']])
+            return Response(('\ufeff'+buffer.getvalue()).encode('utf-8'),media_type='text/csv',
+                            headers={'Content-Disposition':'attachment; filename="aquaguard-alertas.csv"'})
+        return JSONResponse(report, headers={'Content-Disposition':'attachment; filename="aquaguard-informe.json"'} if path.endswith('.json') else {})
+    return app
 
-
-def main():
-    parser = argparse.ArgumentParser(description='AquaGuard - demo local con datos simulados')
-    parser.add_argument('--port', type=int, default=8501)
-    parser.add_argument('--no-browser', action='store_true')
-    args = parser.parse_args()
-    try:
-        project = Project()
-        server = ThreadingHTTPServer(('127.0.0.1',args.port), make_handler(project))
-    except (ValueError,OSError) as exc:
-        parser.exit(1,f'No se pudo iniciar AquaGuard: {exc}\nPrueba otro puerto con --port 8502.\n')
-    url = f'http://127.0.0.1:{server.server_port}'
-    print(f'AquaGuard listo: {url}\nDATOS SIMULADOS | Ctrl+C para detener.',flush=True)
-    if not args.no_browser:
-        threading.Timer(.5,lambda:webbrowser.open(url)).start()
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print('\nAquaGuard detenido.')
-    finally:
-        server.server_close()
-
+app = create_app()
 
 if __name__ == '__main__':
-    main()
+    import uvicorn
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port',type=int,default=8501)
+    parser.add_argument('--no-browser',action='store_true',help='Compatibilidad; el navegador se abre manualmente.')
+    args = parser.parse_args()
+    uvicorn.run(app,host='127.0.0.1',port=args.port)

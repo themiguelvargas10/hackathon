@@ -6,7 +6,7 @@
 <aside class="sidebar">
   <a class="brand" href="/" aria-label="AquaGuard inicio"><img src="/favicon.svg" alt="" width="37" height="37"><span>Aqua<span class="brand-light">Guard</span></span></a>
   <div class="side-sub">AGUA · ENERGÍA · EVIDENCIA</div>
-  <nav aria-label="Secciones"><button class="nav active" data-tab="overview" aria-current="page"><span>01</span> Monitor de operaciones</button><button class="nav" data-tab="evaluation"><span>02</span> Evaluación del detector</button><button class="nav" data-tab="method"><span>03</span> Datos y método</button></nav>
+  <nav aria-label="Secciones"><button class="nav" data-tab="cyber"><span>OT</span> Revisión cyber</button><button class="nav active" data-tab="overview" aria-current="page"><span>01</span> Monitor de operaciones</button><button class="nav" data-tab="evaluation"><span>02</span> Evaluación del detector</button><button class="nav" data-tab="method"><span>03</span> Datos y método</button></nav>
   <div class="side-note"><span class="dot"></span> Demostración local<p>AguaSegura AI<br>22 octubre 2026</p><p class="muted">Tres sitios ficticios.<br>Una revisión informada.</p></div>
 </aside>
 <main id="main">
@@ -29,6 +29,11 @@
       <section class="panel chart-panel"><div class="section-top"><div><h2>El comportamiento en el tiempo</h2><p class="muted" id="chart-caption">Totales por intervalo horario en UTC.</p></div><label class="compact">Mostrar<select id="chart-metric"><option value="water_l">Agua captada · L</option><option value="energy_total_kwh">Energía total · kWh</option><option value="pue">PUE agregado</option></select></label></div><div id="chart" aria-label="Serie temporal"></div><div class="legend"><span class="line-key"></span> Valor del intervalo <span class="alert-key"></span> Una o más alertas <span class="muted">Tabla accesible disponible abajo</span></div><details><summary>Ver datos de la gráfica</summary><div class="table-scroll"><table><thead><tr><th>Inicio UTC</th><th>Agua (L)</th><th>Energía total (kWh)</th><th>PUE</th><th>Alertas</th></tr></thead><tbody id="timeline-table"></tbody></table></div></details></section>
       <div class="section-top"><div><h2>Intervalos para revisar <span id="alert-count" class="count"></span></h2><p class="muted">Orden cronológico. Una alerta no confirma una fuga ni un ataque.</p></div><a id="export-csv" class="button secondary" href="/api/alerts.csv">Descargar alertas ↓</a></div>
       <div class="review-grid"><section class="panel alert-panel"><div id="alerts"></div><div class="pager"><button id="prev" class="button secondary">← Anterior</button><span id="page-info"></span><button id="next" class="button secondary">Siguiente →</button></div></section><section class="panel evidence" id="evidence" aria-live="polite"></section></div>
+    </section>
+    <section id="cyber" class="view" hidden>
+      <div class="notice"><b>Correlación para revisión humana.</b> Un evento OT y una anomalía numérica del mismo sitio a ±1 hora se revisan juntos. Esto no confirma un ataque. Solo se comparan registros dentro de los filtros actuales.</div>
+      <div id="cyber-summary" class="summary-strip"></div>
+      <section class="panel"><h2>Evidencia OT y operacional</h2><p>Las coincidencias justifican revisar autorización del cambio, sensores y condiciones operativas. No se ejecutan acciones en equipos.</p><div class="table-scroll"><table><thead><tr><th>Sitio / hora OT</th><th>Resultado</th><th>Evento observado</th><th>Anomalías relacionadas (UTC)</th></tr></thead><tbody id="cyber-events"></tbody></table></div><p id="cyber-empty" class="footnote"></p></section>
     </section>
     <section id="evaluation" class="view" hidden>
       <div class="notice"><b>Evaluación separada del ajuste.</b> Ambos detectores usan PUE, intensidad hídrica y temperatura de entrada. Se evalúan anomalías numéricas; los eventos OT se cuentan aparte. Cambiar de detector no cambia el conjunto de comparación.</div>

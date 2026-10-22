@@ -1,7 +1,7 @@
-#!/usr/bin/env sh
-cd "$(dirname "$0")" || exit 1
-if command -v python3.12 >/dev/null 2>&1; then
-  exec python3.12 server.py
-fi
-python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)' || exit 1
-exec python3 server.py
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")"
+test -f data/operaciones_simuladas.csv || { echo 'Falta data/operaciones_simuladas.csv'; exit 1; }
+docker compose up --build -d
+docker compose ps
+echo 'Abre http://127.0.0.1:8501 cuando el contenedor esté healthy.'

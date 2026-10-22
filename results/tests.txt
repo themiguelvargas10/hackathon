@@ -1,21 +1,2 @@
-test_benchmark_rejects_foreign_origin (test_project.ApiTests.test_benchmark_rejects_foreign_origin) ... ok
-test_dashboard_and_static_files (test_project.ApiTests.test_dashboard_and_static_files) ... ok
-test_exports_preserve_filters (test_project.ApiTests.test_exports_preserve_filters) ... ok
-test_invalid_requests_do_not_succeed (test_project.ApiTests.test_invalid_requests_do_not_succeed) ... ok
-test_benchmark_reports_samples_not_energy (test_project.ProjectTests.test_benchmark_reports_samples_not_energy) ... ok
-test_changing_evaluation_cannot_change_training_threshold (test_project.ProjectTests.test_changing_evaluation_cannot_change_training_threshold) ... ok
-test_empty_filters_produce_null_ratios (test_project.ProjectTests.test_empty_filters_produce_null_ratios) ... ok
-test_evaluation_population_excludes_ot_from_numeric_target (test_project.ProjectTests.test_evaluation_population_excludes_ot_from_numeric_target) ... ok
-test_invalid_csv_rejected (test_project.ProjectTests.test_invalid_csv_rejected) ... ok
-test_invalid_filters (test_project.ProjectTests.test_invalid_filters) ... ok
-test_isolation_scores_outlier_and_constant_reference (test_project.ProjectTests.test_isolation_scores_outlier_and_constant_reference) ... ok
-test_labels_and_scenarios_cannot_change_predictions (test_project.ProjectTests.test_labels_and_scenarios_cannot_change_predictions) ... ok
-test_missing_hour_reported_not_filled (test_project.ProjectTests.test_missing_hour_reported_not_filled) ... ok
-test_reference_matches_cifox_published_values (test_project.ProjectTests.test_reference_matches_cifox_published_values) ... ok
-test_site_and_day_filter_same_perimeter (test_project.ProjectTests.test_site_and_day_filter_same_perimeter) ... ok
-test_weighted_aggregation_not_mean_of_ratios (test_project.ProjectTests.test_weighted_aggregation_not_mean_of_ratios) ... ok
-
-----------------------------------------------------------------------
-Ran 16 tests in 2.886s
-
-OK
+18 pruebas aprobadas: python -m unittest discover -s tests -v
+Python 3.12 / Windows / FastAPI TestClient. Docker pendiente de validación en equipo con motor instalado.

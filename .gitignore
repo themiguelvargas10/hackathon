@@ -2,4 +2,8 @@ __pycache__/
 *.pyc
 .venv/
 .DS_Store
-results/local_*
+.env
+data/*
+!data/README.md
+results/*
+!results/tests.txt

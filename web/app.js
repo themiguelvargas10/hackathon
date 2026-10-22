@@ -12,7 +12,7 @@ function query(){return new URLSearchParams(Object.fromEntries(filters.map(k=>[k
 function activate(tab){
  document.querySelectorAll('.view').forEach(e=>e.hidden=e.id!==tab);
  document.querySelectorAll('.nav').forEach(e=>{const on=e.dataset.tab===tab;e.classList.toggle('active',on);if(on)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current');});
- const titles={overview:['Cada gota, con evidencia.','Identifica intervalos sospechosos y decide qué revisar.'],evaluation:['La evidencia detrás de la alerta.','Compara aciertos, errores y tiempo de inferencia.'],method:['Entender antes de concluir.','Origen, fórmulas y límites de esta demostración.']};
+ const titles={cyber:['Cyber con contexto operacional.','Eventos OT y señales numéricas del mismo sitio.'],overview:['Cada gota, con evidencia.','Identifica intervalos sospechosos y decide qué revisar.'],evaluation:['La evidencia detrás de la alerta.','Compara aciertos, errores y tiempo de inferencia.'],method:['Entender antes de concluir.','Origen, fórmulas y límites de esta demostración.']};
  $('page-title').textContent=titles[tab][0];$('page-subtitle').textContent=titles[tab][1];
 }
 document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>activate(b.dataset.tab)));
@@ -37,7 +37,7 @@ function render(){
  report.sites.forEach(s=>{const b=el('button',null,'site-card'+($('site').value===s.site?' selected':''));const head=el('div',null,'site-head');head.append(el('b',s.site+' · '+({aire:'Aire',evaporativa:'Evaporativa',liquida:'Líquida'}[s.cooling])),el('span',!s.rows?'Sin registros':s.alerts?s.alerts+' alertas':'Sin alertas','badge'+(s.alerts?' warn':'')));const vals=el('div',null,'site-values');[['Agua (L)',fmt(s.water_l,0)],['PUE',fmt(s.pue,2)],['L/kWh IT',fmt(s.water_intensity,2)]].forEach(([a,v])=>{const d=el('div',a);d.append(el('strong',v));vals.append(d);});b.append(head,vals);b.addEventListener('click',()=>{$('site').value=s.site;load();});sites.append(b);});
  $('alert-count').textContent=report.alerts.length;
  $('export-csv').href='/api/alerts.csv?'+query();$('export-json').href='/api/export.json?'+query();
- renderChart();renderAlerts();renderEvidence();renderEvaluation();
+ renderChart();renderAlerts();renderEvidence();renderEvaluation();renderCyber();
  const gaps=report.quality.missing_internal_intervals;
  $('quality').textContent=gaps.length?'Huecos internos en la selección: '+gaps.map(x=>x.site+': '+x.missing_intervals).join(', ')+'. No se rellenaron.':'Selección validada: sin duplicados ni valores inválidos; sin huecos horarios internos detectados. Esto no verifica que existan datos fuera de sus límites.';
 }
@@ -84,3 +84,10 @@ function renderEvaluation(){
 $('demo').addEventListener('click',async()=>{$('site').value='SIM-B';$('split').value='evaluacion';$('start').value='2026-10-12';$('end').value='2026-10-18';$('method').value='rules';activate('overview');await load();if(report)$('evidence').scrollIntoView({behavior:'instant',block:'center'});});
 $('benchmark').addEventListener('click',async()=>{const b=$('benchmark'),host=clear('benchmark-result');b.disabled=true;host.textContent='Midiendo tres repeticiones en el servidor local…';try{const res=await fetch('/api/benchmark',{method:'POST'});const d=await res.json();if(!res.ok)throw new Error(d.error);host.replaceChildren();const t=el('table'),th=el('thead'),tr=el('tr');['Método','Mediana (ms)','Mínimo (ms)','Máximo (ms)'].forEach(x=>tr.append(el('th',x)));th.append(tr);const tb=el('tbody');Object.entries(d.results).forEach(([k,v])=>tb.append(row([k==='rules'?'Reglas':'Isolation Forest',fmt(v.wall_median*1000,3),fmt(v.wall_min*1000,3),fmt(v.wall_max*1000,3)])));t.append(th,tb);const wrap=el('div',null,'table-scroll');wrap.append(t);host.append(wrap,el('p',`Python ${d.python} · ${d.platform} · ${d.rows} filas · Entrenamiento inicial: ${fmt(d.training_seconds*1000,1)} ms.`, 'footnote'),el('p',d.scope+' '+d.limits,'footnote'));const save=el('button','Descargar medición JSON','button secondary');save.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='aquaguard-medicion.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});host.append(save);}catch(e){host.textContent='No se pudo medir: '+e.message;}finally{b.disabled=false;}});
 load();
+
+function renderCyber(){
+ const c=report.cyber, summary=clear('cyber-summary'), body=clear('cyber-events');
+ [['Revisión conjunta',c.combined],['OT sin coincidencia',c.ot_only],['Numéricas sin OT cercano',c.operational_only_ids.length]].forEach(([label,n])=>summary.append(el('span',label+': '+n)));
+ c.events.forEach(e=>body.append(row([e.site+' · '+date(e.timestamp),e.status==='combined_review'?'Revisar conjuntamente':'Evento OT sin coincidencia',e.reasons.filter(r=>r.includes('OT')).join('; '),e.related_ids.map(id=>id.split('|')[1]).join('; ')||'Ninguna en esta selección'])));
+ $('cyber-empty').textContent=c.events.length?c.limitation:'No hay eventos OT en esta selección. No se generan coincidencias artificiales.';
+}

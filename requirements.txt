@@ -1,2 +1,2 @@
-# Sin paquetes externos. Solo biblioteca estandar de Python.
-# Python 3.12 es la version de referencia; codigo compatible con 3.10+.
+fastapi==0.159.1
+uvicorn==0.54.0

@@ -53,3 +53,10 @@ El tiempo de entrenamiento inicial se informa aparte y no es una media de repeti
 ## Próxima validación necesaria
 
 Más datos, conjunto de calibración separado, eventos más diversos, evaluación temporal independiente, revisión de falsas alarmas con personas operadoras y medición física si se quiere hablar de energía. Cambiar solamente ruido o semilla del generador original no crea un examen independiente.
+
+
+## Actualización cyber y Docker
+
+El CSV se proporciona localmente; se excluye de la imagen y de esta nueva versión del repositorio. FastAPI conserva el cálculo original. La capa cyber cruza cada evento OT con alertas numéricas del detector seleccionado, mismo sitio y diferencia absoluta de hasta 3600 segundos, incluyendo el mismo intervalo. No usa scenario ni simulated_anomaly. Cada vínculo devuelve IDs verificables. Una alerta numérica puede acompañar más de un evento OT: el total de revisiones conjuntas cuenta eventos OT, no incidentes únicos ni ataques confirmados. Solo se considera la selección filtrada.
+
+No se modifica la métrica de evaluación numérica para incorporar estas coincidencias. No hay etiquetas de causalidad ni una evaluación de detección de ataques. Los tests controlados verifican el comportamiento de la correlación, no su eficacia real.

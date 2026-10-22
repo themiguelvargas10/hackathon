@@ -1,113 +1,101 @@
-# AquaGuard
+# AquaGuard Cyber · AguaSegura AI
 
-**Un panel local que detecta intervalos sospechosos de agua y energía y explica qué revisar.** Proyecto de preparación para AguaSegura AI, 22 de octubre de 2026. Equipo de cinco personas.
+**Idea en una frase:** usar las mediciones simuladas del kit para detectar consumo anómalo de agua o energía y cruzarlo con eventos OT, dejando evidencia para revisión humana.
 
-Todos los datos son simulados. Una alerta no confirma fuga, ataque ni ahorro.
+Ruta B: FastAPI + interfaz web local + reglas explicables e Isolation Forest educativo por sitio. Docker ejecuta todo en CPU; sin nube ni servicios externos durante el análisis. El kit se monta localmente en solo lectura.
 
-## Abrir en dos pasos
+## Levantar con Docker (Windows, macOS o Linux)
 
-1. Extrae todo el ZIP a una carpeta. Necesitas Python 3.12 instalado.
-2. En Windows, abre **INICIAR_WINDOWS.cmd** con doble clic. Se abrirá el navegador.
+1. Instala e inicia Docker Desktop (en Windows, contenedores Linux). Espera a que el motor esté listo. En Linux puedes usar Docker Engine con Compose v2. Verifica en una terminal:
 
-La aplicación está en **http://127.0.0.1:8501**. Mantén abierta la terminal. Ctrl+C detiene el servidor.
+```sh
+docker --version
+docker compose version
+```
 
-En macOS/Linux: `sh INICIAR_MAC_LINUX.sh` desde la carpeta extraída.
+2. Si es la primera vez, clona el repositorio privado con tu cuenta autorizada:
 
-También puedes ejecutar `python server.py` (o `py -3.12 server.py` en Windows).
-Si el puerto está ocupado: `python server.py --port 8502`.
-Para no abrir navegador automáticamente: `python server.py --no-browser`.
+```sh
+git clone https://github.com/themiguelvargas10/hackathon.git
+cd hackathon
+```
 
-**No necesitas pip, entornos virtuales, cuentas, claves de API, GPU ni internet para ejecutar el proyecto.** Si aún no tienes Python, su instalación debe hacerse previamente. Usa https://www.python.org/downloads/ o el soporte de tu institución. No abras index.html directamente: necesita el servidor local.
+Si ya lo tienes, entra en `hackathon` y ejecuta `git pull --ff-only`. Si Git avisa de cambios locales, consérvalos antes de actualizar; no uses un reset destructivo. Si modificaste el CSV previamente, haz una copia fuera del repositorio antes de actualizar.
 
-## Qué incluye
+3. Extrae el kit autorizado y copia **operaciones_simuladas.csv** a la carpeta `data` del proyecto. Debe quedar `hackathon/data/operaciones_simuladas.csv`. No pegues el ZIP ni los Papers. El CSV tiene 14 columnas: timestamp, site_id, cooling_type, energy_it_kwh, energy_total_kwh, water_l, load_pct, outdoor_temp_c, inlet_temp_c, ot_event, split, scenario, simulated_anomaly, is_simulated. No lo subas al repositorio.
 
-- Monitor de tres sitios ficticios con filtros de fechas UTC, sitio, partición y detector.
-- Agua, energía, PUE e intensidad hídrica con agregación correcta.
-- Gráficas sin CDN y tabla accesible de todos los intervalos seleccionados.
-- Fichas de alertas con evidencia, mediana histórica y comprobaciones humanas.
-- Reglas explicables y una implementación educativa de Isolation Forest por sitio.
-- Comparación con las mismas entradas numéricas y eventos OT separados.
-- Falsos positivos, falsos negativos, precisión, recall y F1.
-- Medición repetida de inferencia, separada del entrenamiento; sin inventar consumo energético.
-- Exportación CSV, informe JSON y medición JSON.
-- Validación de datos y pruebas automáticas sin paquetes externos.
-- Guion de demo, reparto de tareas y ficha metodológica en `docs/`.
+4. Desde la carpeta que contiene `compose.yaml`, ejecuta:
 
-## Ruta tecnológica
+```sh
+docker compose up --build -d
+docker compose ps
+docker compose logs --tail=50 aquaguard
+```
 
-Se conserva Python y el CSV del kit CIFOX. La interfaz es HTML/CSS/JavaScript servido por la biblioteca estándar de Python. La descarga de dependencias no estaba disponible durante la construcción, por lo que esta entrega funciona sin Streamlit ni scikit-learn. Isolation Forest es una implementación educativa propia y **no se presenta como equivalente validado de scikit-learn**. Todo se ejecuta en un proceso local, sin servicio de nube.
+La primera construcción necesita internet para obtener Python y dependencias. Espera el estado **healthy** (normalmente unos segundos después del arranque). Abre **http://127.0.0.1:8501**. La API responde en http://127.0.0.1:8501/api/health con `status: ok` y 504 filas para el kit original.
 
-## Recorrido de prueba
+En PowerShell puedes comprobarla así:
 
-1. Abre el panel: semana completa, 504 registros y 21 alertas con reglas.
-2. Comprueba los totales: 31,593.1444 L; 105,256.0051 kWh totales; 82,656.4237 kWh IT.
-3. PUE esperado: 1.27341591117. Intensidad hídrica: 0.38222249386 L/kWh IT.
-4. Pulsa **Recorrer un caso**: selecciona SIM-B y evaluación, y abre evidencia.
-5. Cambia a **Evaluación del detector**, restablece filtros y compara los métodos.
-6. Con los datos originales, las reglas numéricas detectan 16/16 y no producen falsas alarmas; Isolation Forest detecta 16/16 y produce 23 falsas alarmas en evaluación. Estas cifras no prueban eficacia externa.
-7. Pulsa **Medir ahora** y descarga el resultado. El benchmark siempre usa toda la evaluación.
-8. Prueba un periodo fuera del CSV: muestra ausencia de datos y cocientes indefinidos.
-9. Repite sin conexión a internet.
+```powershell
+Invoke-RestMethod http://127.0.0.1:8501/api/health
+```
 
-## Pruebas y resultados
+También puedes usar `INICIAR_WINDOWS.cmd` o `sh INICIAR_MAC_LINUX.sh` después de preparar Docker y el CSV.
 
-Desde la raíz:
+## Recorrido de la demo
 
-```text
+1. Monitor: pulsa **Recorrer un caso** para revisar SIM-B y su consumo de agua.
+2. Abre una alerta y explica valor observado, referencia y comprobación humana.
+3. Restablece los filtros y abre **Revisión cyber**: muestra eventos OT, coincidencias a ±1 hora y señales sin coincidencia. Cada vínculo conserva sitio y hora. Cero coincidencias también es un resultado válido; no se modificó el kit para forzarlas.
+4. Evaluación: compara reglas e Isolation Forest con las mismas entradas y filas de evaluación. OT se cuenta aparte.
+5. Pulsa **Medir ahora**: compara tiempo de inferencia local; no lo presentes como medición de electricidad o agua ahorrada.
+
+## Detener, reiniciar y actualizar
+
+```sh
+docker compose down
+docker compose up -d
+```
+
+Después de cambiar el CSV: `docker compose restart aquaguard` (los modelos se recalculan al arrancar). Después de cambiar código: `docker compose up --build -d`.
+
+Problemas frecuentes:
+- Motor no disponible: abre Docker Desktop y espera a que termine de iniciar.
+- CSV ausente o inválido: revisa `docker compose logs --tail=80 aquaguard`; confirma nombre, columnas y que no esté dentro de una subcarpeta adicional.
+- Puerto ocupado: cambia únicamente `127.0.0.1:8501:8000` por `127.0.0.1:8502:8000` en `compose.yaml`, recrea y abre el puerto 8502.
+- Error descargando paquetes: revisa la conexión y repite la construcción antes de la presentación.
+- No aparece la actualización: reconstruye y recarga el navegador.
+- Linux y permiso de lectura: el usuario 10001 del contenedor necesita leer la carpeta y CSV; concede solo la lectura necesaria, no permisos globales de escritura.
+
+## Desarrollo sin Docker (alternativa)
+
+Con Python 3.12 y el CSV local:
+
+```sh
+python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
-python tools/export_report.py
+python server.py
 ```
 
-En Windows puedes sustituir `python` por `py -3.12`. El informe se escribe en `results/local_report.json` y contiene hash del CSV, métricas, evaluación y tiempos del equipo que lo ejecuta. `results/verification.json` documenta la corrida de entrega, no el rendimiento de tu equipo.
+Abre http://127.0.0.1:8501. Las pruebas usan el kit original local; no descargan datos. Consulta `docs/VERIFICACION.md` para distinguir pruebas realizadas de pendientes.
 
-## Estructura
+## Alcance y recursos
 
-```text
-AquaGuard/
-  server.py                  Servidor y API local
-  aquaguard/core.py          Validación, métricas, detectores y evaluación
-  web/                      Interfaz sin dependencias externas
-  data/                     CSV original CIFOX
-  tests/                    Pruebas de cálculos, datos, aislamiento y API
-  tools/export_report.py    Informe reproducible desde terminal
-  docs/                     Método, demo y plan de equipo
-  results/                  Evidencia de verificación
-  LICENSE                   Licencia MIT original CIFOX
-  NOTICE.md                 Atribución y aportaciones
-```
+- **Data / CSV del kit:** entrada real de esta demo. Datos sintéticos, tres sitios y siete días. No utiliza datos productivos.
+- **Kit Stack Tecnológico:** base pedagógica de indicadores, umbrales y separación referencia/evaluación; esta ruta B añade FastAPI, Docker y correlación cyber.
+- **Papers:** apoyo para argumentar el problema y límites; no se ingieren como datos ni se afirma validación científica por incluirlos.
+- **CIFOX y fotos de las reglas:** encuadran el reto. Solo kit y entornos simulados; un contacto por equipo. Datos confidenciales y uso exclusivo del hackathon.
 
-## Contrato de API
+Señal → alerta → evidencia → revisión humana. No controla refrigeración, no escanea redes ni certifica ataques, fugas o potabilidad. ±1 hora es una decisión de diseño, no una regla del organizador. La correlación respeta los filtros: puede perder un vecino que quede fuera del periodo seleccionado. El modelo no aprende de etiquetas ni de eventos OT.
 
-- `GET /api/health`: estado del servidor y número de filas.
-- `GET /api/dashboard`: métricas, serie, alertas y comparación.
-- `GET /api/export.json`: mismo informe para descargar.
-- `GET /api/alerts.csv`: alertas filtradas.
-- `POST /api/benchmark`: tres mediciones de inferencia sin filtros.
+El bonus de +5 a +15 % exige una propuesta viable de cero agua dulce potable; este software por sí solo no lo demuestra. Propuesta a validar: refrigeración en circuito cerrado con aporte no potable autorizado, midiendo reposición, calidad, energía y pérdidas. No se afirma que cierre el balance total.
 
-Filtros: `site=all|SIM-A|SIM-B|SIM-C`, `start=AAAA-MM-DD`, `end=AAAA-MM-DD`, `split=all|referencia|evaluacion`, `method=rules|forest`. Las fechas incluyen el día completo UTC. Parámetros inválidos devuelven 400; rutas desconocidas 404. No hay endpoints de carga ni modificación.
+No se deducen de las fotos pesos de evaluación, duración del pitch, formato de entrega, criterios de aceptación del bonus ni permiso para alojar el kit en GitHub. Confírmenlo con organización.
 
-## Límites de la entrega
+## Confidencialidad
 
-- Los umbrales son didácticos. Los datos se construyeron para que las reglas detectaran las anomalías.
-- El modelo aprende de referencia y el umbral se calibra en esa misma referencia. No existe conjunto independiente para calibración; una validación real necesitaría más datos.
-- Los eventos OT no entran al experimento numérico y se muestran por separado.
-- Cada sitio representa una refrigeración distinta, con condiciones distintas: no permite una comparación causal de tecnologías.
-- La intensidad hídrica es captación local, sin agua indirecta ni retornos; no acredita WUE normalizada, potabilidad ni ahorro.
-- La medición es tiempo de ejecución, no energía, carbono o agua. Corridas cortas pueden ser ruidosas.
-- Servidor solo local, de demostración: sin autenticación ni controles para producción. No conectarlo a OT ni usar datos reales.
-- No se han verificado las bases oficiales completas. Confirmar tamaño del equipo, reutilización de código, IA generativa, horarios y entregables con la organización.
-- Las 16 pruebas automatizadas y la sintaxis JavaScript pasaron. El entorno bloqueó la conexión del navegador al servidor local: la revisión visual e interacción de extremo a extremo siguen pendientes en la laptop del equipo. Ver `docs/VERIFICACION.md`.
+La versión actual excluye el CSV y los informes con registros del repositorio y de la imagen. El repositorio anterior los incluyó; **permanecen en el historial**. El repositorio es privado, pero eso no sustituye autorización del organizador. Mantén los originales localmente. No se reescribió el historial ni se cambió la visibilidad. Las exportaciones también contienen datos del kit: úsalas solo dentro del evento.
 
-## Si algo falla
+## Equipo de cuatro
 
-**Python no encontrado:** instala Python 3.12; vuelve a abrir la terminal o el lanzador.
-
-**No aparece la página:** abre la URL impresa en la terminal y comprueba que el proceso siga activo.
-
-**Puerto ocupado:** usa `--port 8502` y abre la nueva dirección.
-
-**CSV inválido:** la terminal indica la fila problemática. Restaura el CSV incluido o corrige el dato antes de volver a iniciar. El servidor carga los datos al arrancar: reinícialo después de editar el CSV.
-
-**Los filtros no encuentran datos:** el CSV solo contiene del 12 al 18 de octubre de 2026. Referencia abarca los tres primeros días; evaluación los cuatro siguientes.
-
-**Más alertas con IA:** el modelo produce falsos positivos en este conjunto. La evaluación los muestra expresamente. No ajustes el umbral mirando evaluación si vas a reportarla como independiente.
+Lee `docs/DEMO_Y_EQUIPO.md`: reparto, preparación inmediata y guion de cinco minutos (duración propuesta, pendiente de confirmar).

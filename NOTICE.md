@@ -1,11 +1,9 @@
 # Origen y aportación
 
-El CSV sintético, las fórmulas de PUE e intensidad hídrica y los umbrales pedagógicos proceden del CIFOX Starter Kit (2026). Se conserva su licencia MIT en LICENSE.
+Las fórmulas y umbrales pedagógicos proceden del kit CIFOX. Se conserva LICENSE como atribución del código original; la confidencialidad comunicada en el evento se aplica al kit y no se interpreta la licencia de código como permiso para redistribuir sus datos.
 
-AquaGuard añade interfaz propia, fichas de evidencia, servidor local sin dependencias, modelo educativo por sitio, comparación numérica con entradas iguales, separación de eventos OT, controles de validación, exportaciones, mediciones y pruebas. Las adiciones se distribuyen también bajo la licencia MIT incluida.
+AquaGuard añade interfaz, fichas de evidencia, FastAPI, Docker, correlación OT de ±1 hora, modelo educativo por sitio, comparación, validación, exportaciones y pruebas. No se copió código de scikit-learn ni se certifica equivalencia.
 
-El algoritmo implementado sigue el principio de Isolation Forest: particiones aleatorias, longitud de camino y puntuación 2^(-E[h]/c(n)). La documentación describe exactamente esta implementación. No se copió código de scikit-learn ni se certifica equivalencia con esa biblioteca.
+No se redistribuyen Papers ni los datos en la entrega actual. No hay llamadas externas durante el análisis. El historial anterior contiene datos; no fue reescrito.
 
-No se redistribuyen los artículos de Papers ni los datos climáticos externos. No se emplearon como variables del detector. No hay servicios de IA externos ni llamadas a modelos generativos al ejecutar la aplicación.
-
-Proyecto de preparación; no es una herramienta certificada de operación industrial ni un producto oficial de la organización.
+Prototipo del hackathon; no es un producto oficial ni una herramienta certificada de operación industrial.

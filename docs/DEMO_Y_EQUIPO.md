@@ -1,53 +1,34 @@
-# Demo y plan de equipo
+# Plan inmediato · 4 personas
 
-## Guion de práctica (3 minutos)
+Objetivo del MVP: demostrar que una lectura anómala puede revisarse junto con eventos OT del mismo sitio, de forma trazable y con cálculo local ligero.
 
-**0:00-0:30 — Problema.** “Una persona operadora necesita saber qué intervalos de agua y energía revisar. AquaGuard reúne señales y evidencia.”
-
-**0:30-1:00 — Alcance.** Mostrar DATOS SIMULADOS. Explicar tres sitios y una semana. PUE e intensidad hídrica son cocientes de sumas; no potabilidad ni ahorro demostrado.
-
-**1:00-2:00 — Caso.** Pulsar Recorrer un caso. Abrir una alerta de SIM-B. Leer el valor, referencia y comprobación humana. Mostrar la gráfica y la tabla.
-
-**2:00-2:30 — Evaluación.** Restablecer filtros y abrir evaluación. Reglas detectan las 16 anomalías numéricas sin falsas alarmas; el bosque detecta 16 y genera 23 falsas alarmas. Explicar que el dataset favorece a las reglas. Mostrar tiempos solo si ya se midieron en la laptop de demo.
-
-**2:30-3:00 — Aportación y límites.** Fichas explicables, evaluación con entradas iguales, ejecución local y exportación. Tres límites: datos sintéticos, comparación de sitios no causal y tiempo no equivalente a energía. Próximo paso: validación independiente con operadores.
-
-Los tres minutos son práctica sugerida por la guía, no un requisito oficial confirmado.
-
-## Reparto
-
-| Persona | Entrega | Archivos principales |
+| Persona | Entrega | Qué cuenta |
 |---|---|---|
-| 1: integración | Versión que todos pueden arrancar | server.py, README.md |
-| 2: datos | Fórmulas y calidad verificadas | aquaguard/core.py, data/, docs/METODO_Y_DATOS.md |
-| 3: detector | Evaluación y comparación | aquaguard/core.py, tests/ |
-| 4: interfaz | Recorrido legible y accesible | web/ |
-| 5: comunicación | Pitch, pruebas de usuario y respaldo | docs/, capturas propias |
+| 1 · Integración / contacto | Docker healthy, CSV autorizado, respaldo local | Problema y objetivo |
+| 2 · Datos / IA | Filtros, métricas y comparación verificadas | Cómo detectamos y qué errores hay |
+| 3 · Cyber | Revisión OT, ventana temporal y evidencia | Por qué revisar juntos no prueba un ataque |
+| 4 · Producto / pitch | Presentación, tiempos y propuesta hídrica | Impacto, GreenAI, negocio y límites |
 
-Personas 2 y 3 deben coordinar cambios en core.py. Una sola persona integra la versión final. Usen Git si ya lo dominan; de otro modo, intercambien archivos delimitados y eviten sobrescribir trabajo sin comparar.
+## Próximos 90 minutos (plan propuesto)
 
-## Antes de salir
+- 0–15: persona 1 levanta Docker; 2 verifica esquema; 3 busca casos OT del kit; 4 confirma tiempo del pitch y rúbrica con organización.
+- 15–40: 1 y 2 comprueban API y pruebas; 3 prepara una ficha cyber; 4 arma siete diapositivas usando evidencia real de la demo.
+- 40–60: congelar versión, probar inicio tras reinicio, guardar capturas localmente y preparar respaldo sin internet.
+- 60–75: ensayo de 5 minutos y preguntas difíciles.
+- 75–90: corregir solo bloqueos, comprobar Docker y ensayar transición entre cuatro voces.
 
-- Ejecutar pruebas y recorrido en laptop principal.
-- Ejecutar en una segunda laptop con Python instalado.
-- Arrancar sin internet, guardar CSV, ZIP y capturas o vídeo.
-- Llevar cargadores y acordar quién presenta.
-- Todos saben explicar datos, mejora y límites.
+## Guion de 5 minutos (ajustable al tiempo oficial)
 
-## Al recibir las bases
+1. Persona 1, 0:00–0:45: “AquaGuard convierte mediciones de agua y energía en alertas revisables. Añadimos contexto OT para priorizar investigación.”
+2. Persona 2, 0:45–2:00: mostrar SIM-B, alerta, cocientes de sumas y comparación de reglas/modelo. Aclarar datos simulados y límites.
+3. Persona 3, 2:00–3:15: mostrar Revisión cyber; mismo sitio, ±1 hora, IDs y horas. Si no hay coincidencia, explicar OT aislado sin inventar un ataque. Revisar autorización y sensor; no ejecutar acciones.
+4. Persona 4, 3:15–4:30: procesamiento CPU local y medición de tiempos. Propuesta de circuito cerrado con aporte no potable como diseño pendiente de validar. Modelo de negocio propuesto: piloto de monitoreo y servicio por sitio, sin cifras comerciales inventadas.
+5. Persona 1, 4:30–5:00: cerrar con demo reproducible, evidencias y siguientes pasos de validación.
 
-Confirmar tamaño del equipo, código previo, herramientas generativas, reutilización del kit, reto, rúbrica, hora y plataforma de entrega, duración del pitch y propiedad intelectual. Este proyecto debe adaptarse a esas reglas; no se afirma elegibilidad anticipada.
+## Siete diapositivas
 
-Distribuir el tiempo: 10 % reglas y alcance, 45 % adaptación e integración, 20 % pruebas, 15 % documentación y 10 % ensayo. No ampliar funciones durante el último bloque.
+Problema y objetivo → datos del kit → arquitectura Docker → caso operacional y OT → evaluación → GreenAI / balance hídrico → equipo, negocio y siguientes pasos.
 
-## Respuestas cortas para preguntas del jurado
+Si Docker falla durante el pitch: usar capturas locales obtenidas de la misma versión, diciendo explícitamente que son resultados guardados. No afirmar que una demo grabada está corriendo en vivo.
 
-**¿Dónde está la IA?** En el bosque de aislamiento ajustado por sitio sobre referencia, ejecutado en CPU. Es educativo y no usa servicios externos.
-
-**¿La IA es mejor?** No en este ejemplo: detecta las anomalías numéricas pero genera falsas alarmas. Mostramos la comparación para decidir con evidencia.
-
-**¿Cuánta agua ahorraron?** No se demostró ahorro. Se construyó una herramienta de revisión sobre datos simulados.
-
-**¿Qué hicieron ustedes?** Adaptar y comprender la solución, explicar la arquitectura y evaluación, revisar cada componente, y declarar el uso de asistencia de IA según las reglas. No atribuirse código generado como escrito íntegramente a mano.
-
-**¿Sirve en una instalación real?** Harían falta datos y validación operativa independiente, calibración y controles de producción.
+Pendientes externos: tiempo del pitch, formato de entrega, pesos, evidencia requerida para bonus y permiso para alojar datos. Nada de esto se inventa a partir de la rúbrica fotografiada.

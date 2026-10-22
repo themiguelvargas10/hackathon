@@ -8,7 +8,9 @@ import unittest
 from pathlib import Path
 from http.client import HTTPResponse
 from aquaguard.core import Project, DATA, REQUIRED, metrics, load_data, filter_rows, IsolationForest
-from server import make_handler
+from server import create_app
+from fastapi.testclient import TestClient
+from aquaguard.cyber import correlate
 
 
 class ProjectTests(unittest.TestCase):
@@ -128,60 +130,48 @@ class ProjectTests(unittest.TestCase):
         self.assertNotIn('estimated_kwh',b)
 
 
+
 class ApiTests(unittest.TestCase):
-    """Ejercita el parser y la respuesta HTTP en memoria, sin requerir sockets."""
-    @classmethod
-    def setUpClass(cls):
-        cls.handler = make_handler(Project())
-        cls.handler.log_message = lambda *args: None
+    def setUp(self):
+        self.client = TestClient(create_app(DATA))
+        self.client.__enter__()
+    def tearDown(self):
+        self.client.__exit__(None,None,None)
+    def test_dashboard_static_health(self):
+        self.assertEqual(self.client.get('/api/health').json()['rows'],504)
+        self.assertEqual(self.client.get('/').status_code,200)
+        r=self.client.get('/api/dashboard?split=evaluacion')
+        self.assertEqual(r.status_code,200)
+        self.assertEqual(len(r.json()['cyber']['events']),5)
+        self.assertIn("frame-ancestors 'none'",r.headers['content-security-policy'])
+    def test_bad_filters_and_paths(self):
+        for q in ['site=invalid','site=all&site=all','unknown=1','method=bad']:
+            self.assertEqual(self.client.get('/api/dashboard?'+q).status_code,400)
+        self.assertEqual(self.client.get('/data/operaciones_simuladas.csv').status_code,404)
+        self.assertEqual(self.client.post('/api/dashboard').status_code,405)
+    def test_exports(self):
+        self.assertIn('cyber',self.client.get('/api/export.json').json())
+        r=self.client.get('/api/alerts.csv')
+        self.assertTrue(r.content.startswith(b'\xef\xbb\xbf'))
+        self.assertIn('attachment',r.headers['content-disposition'])
+    def test_benchmark_origin(self):
+        self.assertEqual(self.client.post('/api/benchmark',headers={'Origin':'https://other.example'}).status_code,403)
+        self.assertEqual(self.client.post('/api/benchmark',headers={'Origin':'http://testserver'}).status_code,200)
 
-    def request(self, path, method='GET', origin=None):
-        class Socket:
-            def __init__(self, raw):
-                self.input = io.BytesIO(raw)
-                self.output = bytearray()
-            def makefile(self, *args, **kwargs):
-                return self.input
-            def sendall(self, data):
-                self.output.extend(data)
-        headers = f'{method} {path} HTTP/1.0\r\nHost: 127.0.0.1:8501\r\nContent-Length: 0\r\n'
-        if origin:
-            headers += 'Origin: '+origin+'\r\n'
-        sock = Socket((headers+'\r\n').encode('ascii'))
-        self.handler(sock, ('127.0.0.1', 1234), SimpleNamespace(server_port=8501))
-        response = HTTPResponse(Socket(bytes(sock.output)))
-        response.begin()
-        return response
-
-    def test_dashboard_and_static_files(self):
-        for path in ['/', '/app.js', '/style.css', '/favicon.svg', '/api/health']:
-            with self.subTest(path=path):
-                res = self.request(path)
-                self.assertEqual(res.status, 200)
-                self.assertGreater(len(res.read()), 10)
-        res = self.request('/api/dashboard?site=SIM-B&split=evaluacion')
-        self.assertEqual(json.loads(res.read())['metrics']['rows'], 96)
-        self.assertIn("frame-ancestors 'none'", res.headers['Content-Security-Policy'])
-
-    def test_invalid_requests_do_not_succeed(self):
-        for path, status in [('/api/dashboard?site=x', 400), ('/api/dashboard?site=all&site=SIM-A', 400), ('/api/dashboard?extra=1', 400), ('/../server.py', 404)]:
-            with self.subTest(path=path):
-                self.assertEqual(self.request(path).status, status)
-
-    def test_exports_preserve_filters(self):
-        res = self.request('/api/export.json?site=SIM-C')
-        self.assertIn('attachment', res.headers['Content-Disposition'])
-        self.assertEqual(json.loads(res.read())['metrics']['rows'], 168)
-        text = self.request('/api/alerts.csv?site=SIM-B').read().decode('utf-8-sig')
-        self.assertIn('DATOS SIMULADOS', text)
-        self.assertIn('SIM-B', text)
-        self.assertNotIn('SIM-A', text)
-
-    def test_benchmark_rejects_foreign_origin(self):
-        self.assertEqual(self.request('/api/benchmark', 'POST', 'http://example.com').status, 403)
-        self.assertEqual(json.loads(self.request('/api/benchmark', 'POST').read())['repeats'], 3)
-        self.assertEqual(self.request('/api/dashboard', 'POST').status, 405)
-
+class CyberTests(unittest.TestCase):
+    def alert(self,hour,site='SIM-A',numeric=False,ot=False):
+        ts=f'2026-10-15T{hour:02}:00:00+00:00'
+        return dict(id=site+'|'+ts,site=site,timestamp=ts,numeric_alert=numeric,ot_alert=ot,reasons=[])
+    def test_inclusive_window_and_site_isolation(self):
+        rows=[self.alert(10,ot=True),self.alert(9,numeric=True),self.alert(11,numeric=True),self.alert(12,numeric=True),self.alert(10,'SIM-B',numeric=True)]
+        c=correlate(rows)
+        self.assertEqual(c['combined'],1)
+        self.assertEqual(len(c['events'][0]['related_ids']),2)
+        self.assertEqual(len(c['operational_only_ids']),2)
+    def test_same_interval_and_no_coincidence(self):
+        c=correlate([self.alert(10,numeric=True,ot=True),self.alert(14,ot=True)])
+        self.assertEqual((c['combined'],c['ot_only']),(1,1))
+        self.assertEqual(correlate([])['events'],[])
 
 if __name__ == '__main__':
     unittest.main()

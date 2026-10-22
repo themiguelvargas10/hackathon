@@ -1,0 +1,10 @@
+*
+!requirements.txt
+!server.py
+!aquaguard/
+!aquaguard/*.py
+!web/
+!web/*.html
+!web/*.js
+!web/*.css
+!web/*.svg
