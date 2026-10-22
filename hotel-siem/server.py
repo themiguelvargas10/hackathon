@@ -67,7 +67,7 @@ async def security_headers(req,call_next):
     res=await call_next(req)
     res.headers['Cache-Control']='no-store'
     res.headers['X-Content-Type-Options']='nosniff'
-    res.headers['Content-Security-Policy']="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"
+    res.headers['Content-Security-Policy']="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"
     res.headers['Referrer-Policy']='no-referrer'
     return res
 
@@ -137,3 +137,4 @@ if __name__=='__main__':
         TOKEN=os.environ['AQUAGUARD_TRIAGE_TOKEN']
         print('Token temporal de operador (guárdalo para esta sesión): '+TOKEN,flush=True)
     uvicorn.run(app,host='127.0.0.1',port=8765,proxy_headers=False)
+
