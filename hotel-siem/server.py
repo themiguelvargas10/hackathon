@@ -48,6 +48,11 @@ class Triage(BaseModel):
     note: str = Field(min_length=8,max_length=500)
     owner: str = Field(default='Mantenimiento',min_length=2,max_length=60)
 
+class Estimate(BaseModel):
+    loss_liters_per_day: float = Field(ge=0,le=10000000)
+    tariff_mxn_per_m3: float = Field(gt=0,le=1000000)
+    days: int = Field(default=30,ge=1,le=366)
+
 app=FastAPI(title='AquaGuard Hotel local',docs_url=None,redoc_url=None,openapi_url=None)
 
 @app.on_event('startup')
@@ -82,6 +87,17 @@ def dashboard():
         alerts=[dict(r) for r in con.execute('SELECT * FROM alerts ORDER BY CASE severity WHEN \'alta\' THEN 0 WHEN \'media\' THEN 1 ELSE 2 END, timestamp DESC')]
         audits=[dict(r) for r in con.execute('SELECT * FROM audit ORDER BY seq DESC LIMIT 12')]
     return {'simulated':True,'alerts':alerts,'audit':audits,'triage':{'new':sum(a['status']=='new' for a in alerts),'investigating':sum(a['status']=='investigating' for a in alerts),'resolved':sum(a['status']=='resolved' for a in alerts)}}
+
+@app.post('/api/estimate')
+def estimate(payload:Estimate):
+    """Estimate only metered direct water cost; excludes unprovided charges."""
+    volume_m3=payload.loss_liters_per_day*payload.days/1000
+    return {'simulated':True,'period_days':payload.days,
+            'loss_liters_per_day':payload.loss_liters_per_day,
+            'estimated_loss_m3':round(volume_m3,4),
+            'tariff_mxn_per_m3':payload.tariff_mxn_per_m3,
+            'direct_water_cost_mxn':round(volume_m3*payload.tariff_mxn_per_m3,2),
+            'scope':'Estimación del costo directo del volumen indicado. Tarifa y pérdida deben validarse con medidor y recibo; no incluye saneamiento, energía, químicos ni reparación.'}
 
 @app.post('/api/alerts/{alert_id}/triage')
 def triage(alert_id:str, payload:Triage, x_demo_token:str|None=Header(default=None)):

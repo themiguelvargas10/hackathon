@@ -1,4 +1,4 @@
-# AquaGuard Hotel: SIEM para monitoreo y triage de agua
+# NÁCAR SIEM: monitoreo y triage de agua para hoteles
 
 ## Propuesta de valor
 
@@ -8,9 +8,14 @@ Para hoteles de Mérida: reunir mediciones de agua y actividad operativa en una 
 
 Se agregó como referencia local [`estadisticas_agua_hoteles.pdf`](referencias/estadisticas_agua_hoteles.pdf). Describe rangos generales: 140–400 L por huésped/noche; 300–1,200 L por habitación/día; posibles fugas de hasta 750 L/día por inodoros; y varios porcentajes sobre distribución de usos y pérdidas.
 
+Se agregó también [`estadisticas_agua_hotel_con_costos.pdf`](referencias/estadisticas_agua_hotel_con_costos.pdf). Usa una tarifa ilustrativa de $40 MXN/m³ y modela 50 habitaciones con 70 % de ocupación y 400 L por habitación ocupada/día. Bajo esos supuestos, calcula 14 m³/día. Ejemplifica pérdidas anuales directas de aproximadamente $10,220 con 5 % de fuga y $138,992 con 68 % de fuga. Son aritméticamente consistentes con el volumen base, porcentaje y tarifa que el propio PDF declara; no son cotizaciones ni proyecciones para un hotel real.
+
 El PDF no identifica fuentes, establecimientos, tamaños de muestra, periodo, método, ubicación ni definición precisa de “desperdicio”. Por ello:
 
 - No usar esos rangos como límite automático, meta comercial o ahorro esperado.
+- No usar la tarifa de $40 MXN/m³ como tarifa vigente de JAPAY ni como costo universal. La tarifa real depende del esquema de servicio y recibo del hotel. El estimador del prototipo requiere que el usuario introduzca su tarifa y volumen de pérdida medido.
+- El estimador solo calcula costo directo de agua: `(litros perdidos/día × días ÷ 1,000) × tarifa MXN/m³`. No suma automáticamente saneamiento, energía, químicos, mantenimiento, multas ni supuestas tarifas dobles. Cada cargo requiere medición, recibo y validación propia.
+- Las cifras del documento no identifican fuentes externas ni método de medición. No tratar afirmaciones de sanciones, concesiones, retorno de reparación o gasto adicional como asesoría legal o financiera.
 - Los porcentajes por uso no necesariamente comparten denominador; sumarlos podría exceder el consumo total.
 - Las cifras de 5 % adicional y 32–68 % del gasto total por fugas parecen describir alcances diferentes y no son comparables sin fuente y definición.
 - Usarlos solo como preguntas para entrevistas y para orientar qué áreas medir. Validar contra lecturas del hotel y fuentes técnicas primarias antes de publicarlos como hechos.
@@ -67,9 +72,14 @@ Reportar ahorro solo cuando una medición lo respalde. Separar alerta detectada,
 
 Este documento es una guía de diseño, no dictamen jurídico, sanitario ni certificación ISO. Consultar el texto oficial vigente y asesoría calificada antes de implantar controles de cumplimiento.
 
+## Nombre de la propuesta
+
+**NÁCAR SIEM** significa **Núcleo de Análisis, Correlación y Atención de Riesgos Hídricos**. Es el nombre de trabajo para la propuesta. El producto se orienta a operación hotelera en Mérida, con detección, contexto, triage y seguimiento del consumo de agua. No se ha hecho una búsqueda de marcas ni se afirma disponibilidad legal del nombre.
+
 ## Referencias
 
 1. Archivo recibido por el usuario: `docs/referencias/estadisticas_agua_hoteles.pdf`; sin bibliografía identificable dentro del documento.
-2. Diario Oficial de la Federación, decreto de Ley General de Aguas, 11-12-2025: https://www.dof.gob.mx/nota_detalle.php?codigo=5775799&fecha=11/12/2025
-3. Secretaría de Economía, NOM-003-SEMARNAT-1997: https://platiica.economia.gob.mx/normalizacion/nom-003-semarnat-1997/
-4. Secretaría de Economía, NOM-245-SSA1-2010: https://platiica.economia.gob.mx/normalizacion/nom-245-ssa1-2010/
+2. Archivo recibido por el usuario: `docs/referencias/estadisticas_agua_hotel_con_costos.pdf`; tarifa de $40 MXN/m³ explícitamente ilustrativa, no enlaza tabla tarifaria oficial ni fuentes de los parámetros de pérdida.
+3. Diario Oficial de la Federación, decreto de Ley General de Aguas, 11-12-2025: https://www.dof.gob.mx/nota_detalle.php?codigo=5775799&fecha=11/12/2025
+4. Secretaría de Economía, NOM-003-SEMARNAT-1997: https://platiica.economia.gob.mx/normalizacion/nom-003-semarnat-1997/
+5. Secretaría de Economía, NOM-245-SSA1-2010: https://platiica.economia.gob.mx/normalizacion/nom-245-ssa1-2010/

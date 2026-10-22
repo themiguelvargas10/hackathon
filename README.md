@@ -1,8 +1,8 @@
-# AquaGuard Hotel SIEM · AguaSegura AI
+# NÁCAR SIEM · AguaSegura AI
 
-**Propuesta de valor:** ayudar a hoteles de Mérida a detectar consumos de agua atípicos, priorizar inspecciones y comprobar el resultado de correcciones con lecturas comparables y evidencia de triage. No se prometen ahorros antes de medir un piloto.
+**Nombre de propuesta:** NÁCAR SIEM, Núcleo de Análisis, Correlación y Atención de Riesgos Hídricos. **Propuesta de valor:** ayudar a hoteles de Mérida a detectar consumos atípicos, priorizar inspecciones y comprobar correcciones con lecturas comparables y evidencia de triage. El estimador calcula costo directo del agua con la tarifa ingresada por el hotel; no predice ahorros antes de medir un piloto.
 
-La demo hotelera local con backend está en [`hotel-siem/`](hotel-siem/). Usa datos sintéticos, no opera sensores ni controla instalaciones. Revisa [`docs/SIEM_HOTEL_AGUA.md`](docs/SIEM_HOTEL_AGUA.md) para alcance, triage, seguridad y revisión de las cifras recibidas.
+La demo hotelera local con backend está en [`hotel-siem/`](hotel-siem/). Usa datos sintéticos, no opera sensores ni controla instalaciones. Revisa [`docs/SIEM_HOTEL_AGUA.md`](docs/SIEM_HOTEL_AGUA.md) para alcance, triage, seguridad y revisión de las cifras recibidas. Incluye un estimador de costo directo que requiere litros medidos y tarifa del recibo. Los dos PDF recibidos están en `docs/referencias/`.
 
 El tablero original AquaGuard del reto CIFOX queda como módulo de referencia para refrigeración simulada. Sus datos y métricas no representan un hotel y no deben presentarse como resultados hoteleros.
 
