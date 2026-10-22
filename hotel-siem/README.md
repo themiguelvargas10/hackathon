@@ -2,6 +2,8 @@
 
 Prototipo de SIEM de agua. Solo eventos sintéticos. No se conecta a medidores reales ni controla válvulas, bombas o sistemas OT. La consola comparte la identidad visual editorial de la portada NÁCAR SIEM: crema cálido, azul tinta, cobalto y tipografía serif.
 
+La versión pública de GitHub Pages muestra la portada y una consola de demostración estática en `/console/`. En Pages, las acciones de triage y los eventos se guardan solo en el navegador actual y pueden reiniciarse desde ese navegador. Para la bitácora SQLite protegida por token, ejecuta el backend local con las instrucciones de abajo.
+
 ## Ejecutar en Windows de esta laptop
 
 Abre `INICIAR_WINDOWS.cmd`. Al iniciar, la terminal muestra un token temporal para acciones del operador. Mantén esa terminal abierta. Abre http://127.0.0.1:8765 para ver la portada NÁCAR; elige **Explorar la consola** para abrir el triage y estimador de costo directo en http://127.0.0.1:8765/console.
