@@ -103,3 +103,8 @@ La versión actual excluye el CSV y los informes con registros del repositorio y
 ## Equipo de cuatro
 
 Lee `docs/DEMO_Y_EQUIPO.md`: reparto, preparación inmediata y guion de cinco minutos (duración propuesta, pendiente de confirmar).
+
+
+## Capturas para la presentación
+
+Las cuatro vistas del prototipo se pueden consultar en la [galería de capturas](https://themiguelvargas10.github.io/hackathon/capturas/) o abrir directamente en GitHub: [vista ejecutiva](capturas/01-vista-ejecutiva.jpg), [alertas y triage](capturas/02-alertas-triage.jpg), [impacto económico](capturas/03-impacto-economico.jpg) y [cartera operativa](capturas/04-cartera-operativa.jpg). Todas muestran datos sintéticos.
