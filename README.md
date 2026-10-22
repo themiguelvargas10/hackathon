@@ -113,3 +113,8 @@ Las cuatro vistas del prototipo se pueden consultar en la [galería de capturas]
 ## Anexo de propuesta
 
 [Descargar o consultar el PDF: identidad de NÁCAR, evolución, sustentabilidad y ciberseguridad](docs/NACAR_Anexo_sustentabilidad_ciberseguridad.pdf). Documento de tres páginas para adjuntar a la presentación; distingue el prototipo actual de las funciones propuestas.
+
+
+## Presentación AguaSegura AI
+
+[Consultar la presentación NÁCAR SIEM en PDF](docs/AguaSegura_AI_NACAR_SIEM.pdf).
