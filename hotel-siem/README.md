@@ -1,6 +1,6 @@
 # NÁCAR SIEM - triage local
 
-Prototipo de SIEM de agua. Solo eventos sintéticos. No se conecta a medidores reales ni controla válvulas, bombas o sistemas OT.
+Prototipo de SIEM de agua. Solo eventos sintéticos. No se conecta a medidores reales ni controla válvulas, bombas o sistemas OT. La consola comparte la identidad visual editorial de la portada NÁCAR SIEM: crema cálido, azul tinta, cobalto y tipografía serif.
 
 ## Ejecutar en Windows de esta laptop
 
@@ -37,3 +37,4 @@ La severidad simulada es una regla ilustrativa. Prioridad alta si hay flujo pers
 ## Producción futura
 
 Ingesta autenticada y cifrada desde medidores; validar identidad y secuencia de dispositivo, unidades, límites y marcas de tiempo; cola resiliente; almacenamiento de series temporales con retención definida; reglas versionadas por área; alertas con deduplicación; RBAC real; bitácora protegida; backups y monitoreo. No conectar controladores OT al prototipo. Cualquier integración real requiere autorización, revisión de ciberseguridad y diseño de seguridad funcional.
+
