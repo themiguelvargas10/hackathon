@@ -44,6 +44,7 @@ function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 function render(){
  const alerts=dashboard.alerts||[];
  $('openCount').textContent=alerts.filter(a=>!['resolved'].includes(a.status)).length;
+ $('zones').innerHTML=[['Habitaciones','21.4 m³',72],['Lavandería','9.8 m³',84],['Cisterna','8.2 m³',91],['Jardines','3.4 m³',56]].map(([name,value,pct])=>`<div class="zone ${name==='Cisterna'?'alert':''}"><b>${name}</b><div class="bar"><i style="width:${pct}%"></i></div><span>${value}</span></div>`).join('');
  $('alerts').innerHTML=alerts.map(a=>`<div class="signal ${picked===a.id?'selected':''}" data-id="${safe(a.id)}"><i class="dot"></i><div><b>${safe(a.title)}</b><p>${safe(a.timestamp.slice(11,16))} · ${safe(a.evidence)}</p><p><span class="tag ${a.severity==='alta'?'warn':''}">${safe(a.severity)} · ${safe(a.status)}</span></p></div></div>`).join('');
  document.querySelectorAll('.signal').forEach(x=>x.onclick=()=>{picked=x.dataset.id;render();showDetail()});
  $('events').innerHTML=(dashboard.audit||[]).map(e=>`<div class="event"><time>${safe(e.at.slice(11,16))}</time><div><b>${safe(e.actor)}</b><br><small>${safe(e.action)} · ${safe(e.note)}</small></div><span class="tag">${safe(e.alert_id)}</span></div>`).join('')||'<small>Sin actividad todavía</small>';
