@@ -108,3 +108,8 @@ Lee `docs/DEMO_Y_EQUIPO.md`: reparto, preparación inmediata y guion de cinco mi
 ## Capturas para la presentación
 
 Las cuatro vistas del prototipo se pueden consultar en la [galería de capturas](https://themiguelvargas10.github.io/hackathon/capturas/) o abrir directamente en GitHub: [vista ejecutiva](capturas/01-vista-ejecutiva.jpg), [alertas y triage](capturas/02-alertas-triage.jpg), [impacto económico](capturas/03-impacto-economico.jpg) y [cartera operativa](capturas/04-cartera-operativa.jpg). Todas muestran datos sintéticos.
+
+
+## Anexo de propuesta
+
+[Descargar o consultar el PDF: identidad de NÁCAR, evolución, sustentabilidad y ciberseguridad](docs/NACAR_Anexo_sustentabilidad_ciberseguridad.pdf). Documento de tres páginas para adjuntar a la presentación; distingue el prototipo actual de las funciones propuestas.
