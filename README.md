@@ -1,6 +1,10 @@
-# AquaGuard Cyber · AguaSegura AI
+# AquaGuard Hotel SIEM · AguaSegura AI
 
-**Idea en una frase:** usar las mediciones simuladas del kit para detectar consumo anómalo de agua o energía y cruzarlo con eventos OT, dejando evidencia para revisión humana.
+**Propuesta de valor:** ayudar a hoteles de Mérida a detectar consumos de agua atípicos, priorizar inspecciones y comprobar el resultado de correcciones con lecturas comparables y evidencia de triage. No se prometen ahorros antes de medir un piloto.
+
+La demo hotelera local con backend está en [`hotel-siem/`](hotel-siem/). Usa datos sintéticos, no opera sensores ni controla instalaciones. Revisa [`docs/SIEM_HOTEL_AGUA.md`](docs/SIEM_HOTEL_AGUA.md) para alcance, triage, seguridad y revisión de las cifras recibidas.
+
+El tablero original AquaGuard del reto CIFOX queda como módulo de referencia para refrigeración simulada. Sus datos y métricas no representan un hotel y no deben presentarse como resultados hoteleros.
 
 Ruta B: FastAPI + interfaz web local + reglas explicables e Isolation Forest educativo por sitio. Docker ejecuta todo en CPU; sin nube ni servicios externos durante el análisis. El kit se monta localmente en solo lectura.
 
